@@ -83,13 +83,6 @@ func getScenarios(c *gin.Context) {
 			Type:        "directapi",
 			Description: "UAT环境电商场景Direct API支付演示",
 		},
-		{
-			ID:          "prod-ecommerce-linkpay",
-			Name:        "生产-电商-LinkPay Demo",
-			Environment: "Production",
-			Type:        "linkpay",
-			Description: "生产环境电商场景LinkPay支付演示",
-		},
 	}
 
 	c.JSON(200, gin.H{
@@ -232,7 +225,7 @@ func getConfig(c *gin.Context) {
 		"success": true,
 		"data": gin.H{
 			"hasApiKeys":  cfg.EvonetKeyID != "" && cfg.EvonetSignKey != "",
-			"environment": cfg.Environment,
+			"environment": "UAT", // 固定显示UAT
 			"apiUrl":      cfg.EvonetAPIURL,
 		},
 	})

@@ -8,7 +8,6 @@ import {
   ShoppingCartOutlined,
   LinkOutlined,
   ApiOutlined,
-  ThunderboltOutlined,
   SafetyOutlined
 } from '@ant-design/icons';
 import { useApp } from '../context/AppContext';
@@ -43,13 +42,6 @@ const scenarioConfigs = {
     bgGradient: 'linear-gradient(135deg, #722ed1 0%, #531dab 100%)',
     image: '/api/placeholder/300/200',
     features: ['Full control', 'Custom UI', 'Advanced integration']
-  },
-  'prod-ecommerce-linkpay': {
-    icon: <ThunderboltOutlined />,
-    color: '#fa541c',
-    bgGradient: 'linear-gradient(135deg, #fa541c 0%, #d4380d 100%)',
-    image: '/api/placeholder/300/200',
-    features: ['Production ready', 'High performance', 'Enterprise grade']
   }
 };
 

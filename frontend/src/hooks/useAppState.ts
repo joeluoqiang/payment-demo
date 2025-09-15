@@ -96,7 +96,7 @@ export const useAppState = () => {
       
       const staticConfig = {
         hasApiKeys: false,
-        environment: 'demo',
+        environment: 'UAT',
         mode: 'demonstration'
       };
       
