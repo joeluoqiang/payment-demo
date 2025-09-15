@@ -19,6 +19,10 @@ func main() {
 	config.AllowOrigins = []string{
 		"http://localhost:5173", "http://localhost:5174", "http://localhost:5175", "http://localhost:5176", "http://localhost:3000",
 		"https://*.vercel.app", "https://vercel.app",
+		"https://*.onrender.com", // Render域名支持
+		// 部署后请添加您的实际域名
+		// "https://your-app-name.vercel.app",
+		// "https://your-app-name.onrender.com",
 	}
 	config.AllowMethods = []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"}
 	config.AllowHeaders = []string{"Origin", "Content-Type", "Accept", "Authorization", "X-Requested-With"}
