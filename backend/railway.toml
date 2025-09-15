@@ -1,0 +1,15 @@
+[build]
+builder = "heroku/go"
+
+[[env]]
+EVONET_API_URL = { default = "https://sandbox.evonetonline.com" }
+EVONET_KEY_ID = { default = "your_key_id_here" }
+EVONET_SIGN_KEY = { default = "your_sign_key_here" }
+PORT = { default = "8080" }
+ENVIRONMENT = { default = "production" }
+
+[deploy]
+startCommand = "./main"
+
+[[services]]
+name = "payment-demo-backend"
