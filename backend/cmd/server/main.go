@@ -19,7 +19,7 @@ func main() {
 	config.AllowOrigins = []string{
 		"http://localhost:5173", "http://localhost:5174", "http://localhost:5175", "http://localhost:5176", "http://localhost:3000",
 		"https://*.vercel.app", "https://vercel.app",
-		"https://*.onrender.com", // Render域名支持
+		"https://*.onrender.com",               // Render域名支持
 		"https://payment-demo-zeta.vercel.app", // 具体的Vercel域名
 		// 部署后请添加您的实际域名
 		// "https://your-app-name.onrender.com",

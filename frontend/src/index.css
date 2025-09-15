@@ -6,13 +6,14 @@
 }
 
 :root {
-  /* 主题色彩 */
-  --primary-color: #2563eb;
-  --primary-light: #3b82f6;
-  --primary-dark: #1d4ed8;
+  /* 主题色彩 - 新的Evonet品牌色 */
+  --primary-color: #0275DD;
+  --primary-light: #4ADAFC;
+  --primary-dark: #054D8E;
   --secondary-color: #64748b;
-  --accent-color: #06b6d4;
-  --success-color: #10b981;
+  --accent-color: #48E5CE;
+  --accent-secondary: #4ADAFC;
+  --success-color: #48E5CE;
   --warning-color: #f59e0b;
   --error-color: #ef4444;
   
@@ -29,11 +30,11 @@
   --gray-900: #0f172a;
   
   /* 背景和渐变 */
-  --bg-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  --bg-secondary: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-  --bg-tech: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+  --bg-primary: linear-gradient(135deg, #0275DD 0%, #054D8E 100%);
+  --bg-secondary: linear-gradient(135deg, #4ADAFC 0%, #48E5CE 100%);
+  --bg-tech: linear-gradient(135deg, #4ADAFC 0%, #0275DD 100%);
   --bg-glass: rgba(255, 255, 255, 0.1);
-  --bg-dark: linear-gradient(135deg, #0c0c0c 0%, #1a1a1a 100%);
+  --bg-dark: linear-gradient(135deg, #054D8E 0%, #0275DD 100%);
   
   /* 字体 */
   font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
@@ -190,7 +191,7 @@ body {
   justify-content: center;
   align-items: center;
   height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #0275DD 0%, #054D8E 100%);
 }
 
 .loading-content {
@@ -201,7 +202,7 @@ body {
 
 .homepage-container {
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #0275DD 0%, #054D8E 100%);
   position: relative;
   overflow-x: hidden;
 }
@@ -245,6 +246,17 @@ body {
   letter-spacing: -1px;
 }
 
+.logo-image {
+  height: 40px;
+  width: auto;
+  filter: brightness(0) invert(1);
+  transition: all var(--transition-normal);
+}
+
+.logo-image:hover {
+  filter: brightness(0) invert(1) drop-shadow(0 0 10px rgba(255, 255, 255, 0.5));
+}
+
 .country-selector {
   display: flex;
   align-items: center;
@@ -264,7 +276,7 @@ body {
 /* 支付页面样式 */
 .payment-page {
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #0275DD 0%, #054D8E 100%);
   position: relative;
 }
 
@@ -583,15 +595,15 @@ body {
   height: 50px !important;
   font-size: 16px !important;
   font-weight: 600 !important;
-  background: linear-gradient(135deg, #1890ff 0%, #096dd9 100%) !important;
+  background: linear-gradient(135deg, #0275DD 0%, #054D8E 100%) !important;
   border: none !important;
   border-radius: 12px !important;
 }
 
 .pay-button:hover {
-  background: linear-gradient(135deg, #40a9ff 0%, #1890ff 100%) !important;
+  background: linear-gradient(135deg, #4ADAFC 0%, #0275DD 100%) !important;
   transform: translateY(-1px);
-  box-shadow: 0 8px 20px rgba(24, 144, 255, 0.3) !important;
+  box-shadow: 0 8px 20px rgba(2, 117, 221, 0.3) !important;
 }
 
 .error-alert,
@@ -602,7 +614,7 @@ body {
 /* 支付结果页面样式 */
 .payment-result-page {
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #0275DD 0%, #054D8E 100%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -660,7 +672,7 @@ body {
 }
 
 .home-button {
-  background: linear-gradient(135deg, #1890ff 0%, #096dd9 100%) !important;
+  background: linear-gradient(135deg, #0275DD 0%, #054D8E 100%) !important;
   border: none !important;
   border-radius: 12px !important;
   height: 48px !important;
@@ -669,9 +681,9 @@ body {
 }
 
 .home-button:hover {
-  background: linear-gradient(135deg, #40a9ff 0%, #1890ff 100%) !important;
+  background: linear-gradient(135deg, #4ADAFC 0%, #0275DD 100%) !important;
   transform: translateY(-1px);
-  box-shadow: 0 8px 20px rgba(24, 144, 255, 0.3) !important;
+  box-shadow: 0 8px 20px rgba(2, 117, 221, 0.3) !important;
 }
 
 /* 响应式设计 */

@@ -24,22 +24,22 @@ interface HomePageProps {
 const scenarioConfigs = {
   'uat-ecommerce-linkpay': {
     icon: <ShoppingCartOutlined />,
-    color: '#52c41a',
-    bgGradient: 'linear-gradient(135deg, #52c41a 0%, #389e0d 100%)',
+    color: '#0275DD',
+    bgGradient: 'linear-gradient(135deg, #0275DD 0%, #054D8E 100%)',
     image: '/api/placeholder/300/200',
     features: ['One-click payment', 'Mobile optimized', 'Multi-currency']
   },
   'uat-ecommerce-dropin': {
     icon: <CreditCardOutlined />,
-    color: '#1890ff',
-    bgGradient: 'linear-gradient(135deg, #1890ff 0%, #0958d9 100%)',
+    color: '#4ADAFC',
+    bgGradient: 'linear-gradient(135deg, #4ADAFC 0%, #0275DD 100%)',
     image: '/api/placeholder/300/200',
     features: ['Embedded UI', 'Multiple methods', 'Real-time validation']
   },
   'uat-ecommerce-directapi': {
     icon: <ApiOutlined />,
-    color: '#722ed1',
-    bgGradient: 'linear-gradient(135deg, #722ed1 0%, #531dab 100%)',
+    color: '#48E5CE',
+    bgGradient: 'linear-gradient(135deg, #48E5CE 0%, #4ADAFC 100%)',
     image: '/api/placeholder/300/200',
     features: ['Full control', 'Custom UI', 'Advanced integration']
   }
@@ -87,7 +87,11 @@ const HomePage: React.FC<HomePageProps> = () => {
       <header className="header">
         <div className="header-content">
           <div className="logo">
-            <Text className="logo-text">Evonet</Text>
+            <img 
+              src="https://evonetglobal.com/wp-content/uploads/2025/07/logo-3.png" 
+              alt="Evonet" 
+              className="logo-image"
+            />
           </div>
           
           <div className="country-selector">
