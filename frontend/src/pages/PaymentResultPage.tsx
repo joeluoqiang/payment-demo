@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Button, Result, Spin, Alert, Row, Col, Typography, Space, Tag } from 'antd';
-import { useTranslation } from 'react-i18next';
+import { Card, Button, Result, Spin, Row, Col, Typography, Space, Tag } from 'antd';
 import { 
   CheckCircleOutlined, 
   CloseCircleOutlined, 
@@ -27,7 +26,6 @@ interface PaymentStatus {
 }
 
 const PaymentResultPage: React.FC = () => {
-  const { t } = useTranslation();
   const location = useLocation();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);

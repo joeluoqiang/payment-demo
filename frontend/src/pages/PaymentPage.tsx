@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Card, Form, Input, Button, Row, Col, Typography, Space, Alert, Spin, Divider, Image, Tag, Steps } from 'antd';
+import { Card, Form, Input, Button, Row, Col, Typography, Space, Alert, Divider, Tag, Steps } from 'antd';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { 
@@ -9,14 +9,13 @@ import {
   SafetyOutlined,
   CheckCircleOutlined,
   LockOutlined,
-  TruckOutlined,
   CheckOutlined
 } from '@ant-design/icons';
-import type { PaymentRequest, CardInfo, Country, PaymentScenario } from '../types';
+import type { PaymentRequest, Country, PaymentScenario } from '../types';
 import DropInComponent from '../components/DropInComponent';
 import { apiService } from '../services/api';
 
-const { Title, Text, Paragraph } = Typography;
+const { Title, Text } = Typography;
 const { Step } = Steps;
 
 interface PaymentPageProps {
