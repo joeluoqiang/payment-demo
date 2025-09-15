@@ -404,9 +404,9 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ country, scenario }) => {
                     environment={scenario.environment}
                     onPaymentCompleted={(params) => {
                       console.log('Payment completed:', params);
-                      // Drop-in支付完成后跳转到结果页面
+                      // Drop-in支付完成后跳转到结果页面，传递支付类型参数
                       const merchantTransId = result.merchantTransId || generateMerchantTransId();
-                      navigate(`/payment-result?orderId=${merchantTransId}`);
+                      navigate(`/payment-result?orderId=${merchantTransId}&paymentType=dropin`);
                     }}
                     onPaymentFailed={(params) => {
                       console.log('Payment failed:', params);
