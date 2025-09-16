@@ -208,9 +208,9 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ country, scenario }) => {
           layout="vertical"
           onFinish={handleSubmit}
           initialValues={{
-            cardNumber: '4761 3600 7211 8507',
-            expiryDate: '05/29',
-            cvv: '123',
+            cardNumber: '4895 3301 1111 1119',
+            expiryDate: '12/31',
+            cvv: '390',
             holderName: 'John Doe',
           }}
         >
@@ -223,7 +223,7 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ country, scenario }) => {
               >
                 <Input
                   size="large"
-                  placeholder="4761 3600 7211 8507"
+                  placeholder="4895 3301 1111 1119"
                   maxLength={19}
                   prefix={<CreditCardOutlined />}
                   onChange={(e) => {
@@ -259,7 +259,7 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ country, scenario }) => {
                   >
                     <Input
                       size="large"
-                      placeholder="123"
+                      placeholder="390"
                       maxLength={4}
                     />
                   </Form.Item>
@@ -399,6 +399,16 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ country, scenario }) => {
                     showIcon
                     style={{ marginBottom: 16 }}
                   />
+                  
+                  {/* 测试卡信息提示 */}
+                  <Alert
+                    message="Test Card Information"
+                    description={t('payment.testCardInfo')}
+                    type="success"
+                    showIcon
+                    style={{ marginBottom: 16 }}
+                  />
+                  
                   <DropInComponent
                     sessionId={result.sessionId}
                     environment={scenario.environment}

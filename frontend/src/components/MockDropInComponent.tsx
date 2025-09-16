@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Button, Card, Form, Input, Select, Alert, Space } from 'antd';
 import { CreditCardOutlined } from '@ant-design/icons';
+import { useTranslation } from 'react-i18next';
 
 const { Option } = Select;
 
@@ -19,6 +20,7 @@ const MockDropInComponent: React.FC<MockDropInComponentProps> = ({
   onPaymentFailed,
   onPaymentCancelled,
 }) => {
+  const { t } = useTranslation();
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
 
@@ -80,6 +82,15 @@ const MockDropInComponent: React.FC<MockDropInComponentProps> = ({
         />
       }
     >
+      {/* 测试卡信息提示 */}
+      <Alert
+        message="Test Card Information"
+        description={t('payment.testCardInfo')}
+        type="success"
+        showIcon
+        style={{ marginBottom: 16 }}
+      />
+      
       <Form
         form={form}
         layout="vertical"
@@ -123,7 +134,7 @@ const MockDropInComponent: React.FC<MockDropInComponentProps> = ({
               rules={[{ required: true, message: '请输入卡号' }]}
             >
               <Input
-                placeholder="4761 3600 7211 8507"
+                placeholder="4895 3301 1111 1119"
                 size="large"
                 maxLength={19}
               />
@@ -150,7 +161,7 @@ const MockDropInComponent: React.FC<MockDropInComponentProps> = ({
                 rules={[{ required: true, message: '请输入CVV' }]}
               >
                 <Input
-                  placeholder="123"
+                  placeholder="390"
                   size="large"
                   maxLength={4}
                 />

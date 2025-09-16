@@ -45,5 +45,6 @@ export default {
     completed: '支付成功完成！',
     failed: '支付失败',
     cancelled: '支付已取消',
+    testCardInfo: '你可以使用以下卡信息进行测试：卡号：4895 3301 1111 1119，有效期：12/31，CVV：390，如需要输入 OTP，请输入：123456',
   },
 };

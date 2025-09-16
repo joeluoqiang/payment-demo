@@ -45,5 +45,6 @@ export default {
     completed: 'Payment completed successfully!',
     failed: 'Payment failed',
     cancelled: 'Payment cancelled',
+    testCardInfo: 'You can use the following card information for testing: Card Number: 4895 3301 1111 1119, Expiry Date: 12/31, CVV: 390, If OTP is required, please enter: 123456',
   },
 };
