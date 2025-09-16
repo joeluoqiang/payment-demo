@@ -29,7 +29,7 @@ func IsValidCurrency(currency string) bool {
 	return validCurrencies[currency]
 }
 
-// 格式化金额（保留两位小数）
+// 格式化金额（整数格式）
 func FormatAmount(amount float64) string {
-	return fmt.Sprintf("%.2f", amount)
+	return fmt.Sprintf("%.0f", amount)
 }

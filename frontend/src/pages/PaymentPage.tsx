@@ -29,14 +29,14 @@ const mockProducts = [
   {
     id: 1,
     name: 'Premium Wireless Headphones',
-    price: 89.99,
+    price: 90,
     quantity: 1,
     description: 'High-quality wireless headphones with noise cancellation'
   },
   {
     id: 2,
     name: 'Smart Fitness Watch',
-    price: 199.99,
+    price: 200,
     quantity: 1,
     description: 'Advanced fitness tracking with heart rate monitor'
   }
@@ -60,8 +60,8 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ country, scenario }) => {
   // 计算订单总额
   const calculateTotal = () => {
     const subtotal = mockProducts.reduce((sum, product) => sum + (product.price * product.quantity), 0);
-    const shipping = 9.99;
-    const tax = subtotal * 0.1; // 10% 税费
+    const shipping = 10;
+    const tax = Math.floor(subtotal * 0.1); // 10% 税费，取整
     return {
       subtotal,
       shipping,
@@ -163,21 +163,21 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ country, scenario }) => {
       <div className="price-breakdown">
         <div className="price-row">
           <Text>Subtotal:</Text>
-          <Text>${orderSummary.subtotal.toFixed(2)}</Text>
+          <Text>${orderSummary.subtotal}</Text>
         </div>
         <div className="price-row">
           <Text>Shipping:</Text>
-          <Text>${orderSummary.shipping.toFixed(2)}</Text>
+          <Text>${orderSummary.shipping}</Text>
         </div>
         <div className="price-row">
           <Text>Tax:</Text>
-          <Text>${orderSummary.tax.toFixed(2)}</Text>
+          <Text>${orderSummary.tax}</Text>
         </div>
         <Divider style={{ margin: '12px 0' }} />
         <div className="price-row total-row">
           <Text strong style={{ fontSize: '18px' }}>Total:</Text>
           <Text strong style={{ fontSize: '18px', color: '#1890ff' }}>
-            {country.currency} {orderSummary.total.toFixed(2)}
+            {country.currency} {orderSummary.total}
           </Text>
         </div>
       </div>
@@ -300,7 +300,7 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ country, scenario }) => {
               icon={<CreditCardOutlined />}
               className="pay-button"
             >
-              {loading ? t('payment.processing') : `Pay ${country.currency} ${orderSummary.total.toFixed(2)}`}
+              {loading ? t('payment.processing') : `Pay ${country.currency} ${orderSummary.total}`}
             </Button>
           </Form.Item>
           

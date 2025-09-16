@@ -85,7 +85,7 @@ const MockDropInComponent: React.FC<MockDropInComponentProps> = ({
         layout="vertical"
         onFinish={handleSubmit}
         initialValues={{
-          amount: '100.00',
+          amount: '100',
           paymentMethod: 'credit_card',
         }}
       >
@@ -96,7 +96,7 @@ const MockDropInComponent: React.FC<MockDropInComponentProps> = ({
         >
           <Input
             prefix="$"
-            placeholder="100.00"
+            placeholder="100"
             size="large"
           />
         </Form.Item>

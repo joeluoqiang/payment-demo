@@ -50,7 +50,7 @@ func (s *PaymentService) CreateInteraction(req *models.PaymentRequest) (*models.
 		},
 		"transAmount": map[string]interface{}{
 			"currency": req.Currency,
-			"value":    fmt.Sprintf("%.2f", req.Amount),
+			"value":    fmt.Sprintf("%.0f", req.Amount),
 		},
 		"returnURL": req.ReturnURL,
 		"webhook":   req.WebhookURL,
@@ -114,7 +114,7 @@ func (s *PaymentService) CreateDirectPayment(req *models.PaymentRequest) (*model
 		},
 		"transAmount": map[string]interface{}{
 			"currency": req.Currency,
-			"value":    fmt.Sprintf("%.2f", req.Amount),
+			"value":    fmt.Sprintf("%.0f", req.Amount),
 		},
 		"paymentMethod": map[string]interface{}{
 			"type": "card",
@@ -468,7 +468,7 @@ func (s *PaymentService) createMockPaymentStatus(merchantTransID string) *models
 		return &models.Payment{
 			MerchantTransID: merchantTransID,
 			Status:          "captured",
-			Amount:          289.97, // 模拟金额
+			Amount:          300, // 模拟金额（整数）
 			Currency:        "USD",
 			CreatedAt:       time.Now().Add(-time.Minute * 5), // 5分钟前创建
 		}
