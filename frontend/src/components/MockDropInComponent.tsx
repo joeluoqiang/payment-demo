@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Button, Card, Form, Input, Select, Alert, Space } from 'antd';
 import { CreditCardOutlined } from '@ant-design/icons';
-import { useTranslation } from 'react-i18next';
 
 const { Option } = Select;
 
@@ -20,7 +19,6 @@ const MockDropInComponent: React.FC<MockDropInComponentProps> = ({
   onPaymentFailed,
   onPaymentCancelled,
 }) => {
-  const { t } = useTranslation();
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
 
@@ -82,15 +80,6 @@ const MockDropInComponent: React.FC<MockDropInComponentProps> = ({
         />
       }
     >
-      {/* 测试卡信息提示 */}
-      <Alert
-        message="Test Card Information"
-        description={t('payment.testCardInfo')}
-        type="success"
-        showIcon
-        style={{ marginBottom: 16 }}
-      />
-      
       <Form
         form={form}
         layout="vertical"

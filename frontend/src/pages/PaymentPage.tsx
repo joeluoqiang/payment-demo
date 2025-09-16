@@ -399,16 +399,6 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ country, scenario }) => {
                     showIcon
                     style={{ marginBottom: 16 }}
                   />
-                  
-                  {/* 测试卡信息提示 */}
-                  <Alert
-                    message="Test Card Information"
-                    description={t('payment.testCardInfo')}
-                    type="success"
-                    showIcon
-                    style={{ marginBottom: 16 }}
-                  />
-                  
                   <DropInComponent
                     sessionId={result.sessionId}
                     environment={scenario.environment}
