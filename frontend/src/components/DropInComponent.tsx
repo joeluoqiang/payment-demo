@@ -34,8 +34,8 @@ const DropInComponent: React.FC<DropInComponentProps> = ({
 
       console.log('Loading Drop-in SDK...');
       const script = document.createElement('script');
-      // 使用你提供的正确CDN链接
-      script.src = 'https://cdn.jsdelivr.net/npm/cil-dropin-components@latest/dist/index.min.js';
+      // 使用本地JS文件
+      script.src = '/index.min.js';
       script.crossOrigin = 'anonymous';
       script.onload = () => {
         console.log('Drop-in SDK loaded successfully');
@@ -145,7 +145,7 @@ const DropInComponent: React.FC<DropInComponentProps> = ({
             <div>
               <div>无法加载官方Drop-in SDK，正在使用模拟组件进行演示</div>
               <div style={{ fontSize: 12, color: '#666', marginTop: 4 }}>
-                SDK URL: https://cdn.jsdelivr.net/npm/cil-dropin-components@latest/dist/index.min.js
+                SDK URL: /index.min.js
               </div>
             </div>
           }
@@ -161,7 +161,7 @@ const DropInComponent: React.FC<DropInComponentProps> = ({
                   setError(null);
                   setSdkLoaded(false);
                   // 清除之前的脚本
-                  const existingScripts = document.querySelectorAll('script[src*="cil-dropin-components"]');
+                  const existingScripts = document.querySelectorAll('script[src*="index.min.js"]');
                   existingScripts.forEach(script => script.remove());
                 }}
                 style={{ marginRight: 8 }}
@@ -172,7 +172,7 @@ const DropInComponent: React.FC<DropInComponentProps> = ({
                 size="small"
                 type="link"
                 onClick={() => {
-                  window.open('https://cdn.jsdelivr.net/npm/cil-dropin-components@latest/dist/index.min.js', '_blank');
+                  window.open('/index.min.js', '_blank');
                 }}
               >
                 检查SDK链接

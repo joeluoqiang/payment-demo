@@ -19,6 +19,36 @@ export const useAppState = () => {
   const [config, setConfig] = useState<any>(null);
   const [initialized, setInitialized] = useState(false);
 
+  // 检查本地缓存
+  const getCachedData = () => {
+    try {
+      const cached = localStorage.getItem('payment-demo-cache');
+      if (cached) {
+        const data = JSON.parse(cached);
+        const now = Date.now();
+        // 缓存5分钟有效
+        if (now - data.timestamp < 5 * 60 * 1000) {
+          console.log('使用缓存数据');
+          return data;
+        }
+      }
+    } catch (e) {
+      console.error('读取缓存失败:', e);
+    }
+    return null;
+  };
+
+  const setCachedData = (data: any) => {
+    try {
+      localStorage.setItem('payment-demo-cache', JSON.stringify({
+        ...data,
+        timestamp: Date.now()
+      }));
+    } catch (e) {
+      console.error('保存缓存失败:', e);
+    }
+  };
+
   // 加载国家和场景数据
   useEffect(() => {
     if (!initialized) {
@@ -29,6 +59,21 @@ export const useAppState = () => {
   const loadInitialData = async () => {
     if (loading || initialized) return;
     
+    // 先检查缓存
+    const cachedData = getCachedData();
+    if (cachedData) {
+      setState(prev => ({
+        ...prev,
+        countries: cachedData.countries,
+        scenarios: cachedData.scenarios,
+        selectedCountry: cachedData.selectedCountry,
+      }));
+      setConfig(cachedData.config);
+      setInitialized(true);
+      console.log('使用缓存数据初始化完成');
+      return;
+    }
+    
     setLoading(true);
     setError(null);
     
@@ -36,28 +81,54 @@ export const useAppState = () => {
       console.log('开始加载初始数据...');
       console.log('API Base URL:', import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080');
       
-      const [countries, scenarios, configData] = await Promise.all([
+      // 为Chrome浏览器添加超时处理和重试机制
+      const isChrome = /Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor);
+      const timeoutMs = isChrome ? 10000 : 30000; // Chrome使用更短的超时时间
+      
+      console.log(`检测到浏览器: ${isChrome ? 'Chrome' : '其他'}, 使用超时时间: ${timeoutMs}ms`);
+      
+      // 使用Promise.race来实现超时控制
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('Request timeout')), timeoutMs);
+      });
+      
+      const dataPromise = Promise.all([
         apiService.getCountries(),
         apiService.getScenarios(),
         apiService.getConfig(),
       ]);
+      
+      const [countries, scenarios, configData] = await Promise.race([
+        dataPromise,
+        timeoutPromise
+      ]) as [any, any, any];
       
       console.log('Countries loaded:', countries);
       console.log('Scenarios loaded:', scenarios);
       console.log('Config loaded:', configData);
       
       // 默认选择Global国家
-      const globalCountry = countries.find(c => c.code === 'GLOBAL');
+      const globalCountry = countries.find((c: Country) => c.code === 'GLOBAL');
+      const selectedCountry = globalCountry || countries[0];
       
       setState(prev => ({
         ...prev,
         countries,
         scenarios,
-        selectedCountry: globalCountry || countries[0], // 如果没有Global，选择第一个
+        selectedCountry,
       }));
       
       setConfig(configData);
       setInitialized(true);
+      
+      // 缓存数据
+      setCachedData({
+        countries,
+        scenarios,
+        config: configData,
+        selectedCountry
+      });
+      
       console.log('初始数据加载完成');
     } catch (err: any) {
       console.error('加载初始数据失败:', err);
@@ -100,15 +171,25 @@ export const useAppState = () => {
         mode: 'demonstration'
       };
       
+      const selectedCountry = staticCountries[0];
+      
       setState(prev => ({
         ...prev,
         countries: staticCountries,
         scenarios: staticScenarios,
-        selectedCountry: staticCountries[0],
+        selectedCountry,
       }));
       
       setConfig(staticConfig);
       setInitialized(true);
+      
+      // 缓存静态数据
+      setCachedData({
+        countries: staticCountries,
+        scenarios: staticScenarios,
+        config: staticConfig,
+        selectedCountry
+      });
       
       // 不设置error，让应用继续以演示模式运行
       console.log('演示模式初始化完成');

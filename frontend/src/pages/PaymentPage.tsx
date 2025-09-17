@@ -393,9 +393,15 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ country, scenario }) => {
               {scenario.type === 'dropin' && result?.sessionId && (
                 <Card title="Complete Your Payment" className="dropin-card">
                   <Alert
-                    message="Drop-in Payment Component"
-                    description="Complete your payment using the secure payment form below"
+                    message="Secure Payment"
+                    description="Your payment will be processed securely using DROPIN integration."
                     type="info"
+                    showIcon
+                    style={{ marginBottom: 16 }}
+                  />
+                  <Alert
+                    message={t('payment.testCardInfo')}
+                    type="warning"
                     showIcon
                     style={{ marginBottom: 16 }}
                   />
