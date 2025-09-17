@@ -76,12 +76,6 @@ const HomePage: React.FC<HomePageProps> = () => {
         <div className="loading-content">
           <Spin size="large" />
           <Text style={{ marginTop: 16, color: 'white' }}>Loading payment demos...</Text>
-          <Text style={{ marginTop: 8, color: 'rgba(255,255,255,0.7)', fontSize: '12px' }}>
-            {/Chrome/.test(navigator.userAgent) ? 
-              'Chrome浏览器加载中，如长时间未响应将自动切换到演示模式...' : 
-              '正在加载中...'
-            }
-          </Text>
         </div>
       </div>
     );

@@ -3,23 +3,11 @@ import type { Country, PaymentScenario, PaymentRequest, PaymentResponse } from '
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
 
-// 检测浏览器类型
-const isChrome = /Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor);
-const isSafari = /Safari/.test(navigator.userAgent) && /Apple Computer/.test(navigator.vendor);
-const isFirefox = /Firefox/.test(navigator.userAgent);
-
-console.log('浏览器检测:', { isChrome, isSafari, isFirefox });
-
 const api = axios.create({
   baseURL: `${API_BASE_URL}/api/v1`,
-  timeout: isChrome ? 15000 : 30000, // Chrome使用更短的超时时间
+  timeout: 30000,
   headers: {
     'Content-Type': 'application/json',
-    // 为Chrome浏览器添加额外的头信息
-    ...(isChrome && {
-      'Cache-Control': 'no-cache',
-      'Pragma': 'no-cache',
-    }),
   },
 });
 
@@ -46,81 +34,22 @@ export const apiService = {
   // 获取国家列表
   getCountries: async (): Promise<Country[]> => {
     console.log('请求国家列表...');
-    try {
-      const response = await api.get('/countries');
-      return response.data.data;
-    } catch (error) {
-      console.error('获取国家列表失败:', error);
-      // 为Chrome浏览器提供降级方案
-      if (isChrome) {
-        console.log('Chrome浏览器降级到静态数据');
-        return [
-          { code: 'GLOBAL', name: 'Global', currency: 'USD', language: 'en' },
-          { code: 'HK', name: 'Hong Kong', currency: 'HKD', language: 'zh' },
-        ];
-      }
-      throw error;
-    }
+    const response = await api.get('/countries');
+    return response.data.data;
   },
 
   // 获取场景列表
   getScenarios: async (): Promise<PaymentScenario[]> => {
     console.log('请求场景列表...');
-    try {
-      const response = await api.get('/scenarios');
-      return response.data.data;
-    } catch (error) {
-      console.error('获取场景列表失败:', error);
-      // 为Chrome浏览器提供降级方案
-      if (isChrome) {
-        console.log('Chrome浏览器降级到静态数据');
-        return [
-          {
-            id: 'uat-ecommerce-linkpay',
-            name: 'E-commerce LinkPay (UAT)',
-            type: 'linkpay',
-            environment: 'uat',
-            description: 'Redirect-based payment method'
-          },
-          {
-            id: 'uat-ecommerce-dropin',
-            name: 'E-commerce Drop-in (UAT)',
-            type: 'dropin',
-            environment: 'uat',
-            description: 'Embedded payment component'
-          },
-          {
-            id: 'uat-ecommerce-directapi',
-            name: 'E-commerce Direct API (UAT)',
-            type: 'directapi',
-            environment: 'uat',
-            description: 'Direct API integration'
-          },
-        ];
-      }
-      throw error;
-    }
+    const response = await api.get('/scenarios');
+    return response.data.data;
   },
 
   // 获取配置信息
   getConfig: async (): Promise<any> => {
     console.log('请求配置信息...');
-    try {
-      const response = await api.get('/config');
-      return response.data.data;
-    } catch (error) {
-      console.error('获取配置信息失败:', error);
-      // 为Chrome浏览器提供降级方案
-      if (isChrome) {
-        console.log('Chrome浏览器降级到静态配置');
-        return {
-          hasApiKeys: false,
-          environment: 'UAT',
-          mode: 'demonstration'
-        };
-      }
-      throw error;
-    }
+    const response = await api.get('/config');
+    return response.data.data;
   },
 
   // 创建支付交互（LinkPay和Drop-in）
