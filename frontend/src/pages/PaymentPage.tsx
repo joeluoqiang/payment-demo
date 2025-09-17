@@ -62,13 +62,20 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ country, scenario }) => {
   }, [scenario.id, form]);
 
   const generateMerchantTransId = () => {
-    const timestamp = Date.now(); // 使用毫秒时间戳确保唯一性
+    // 使用当前时间戳的后8位（秒级时间戳）
+    const timestamp = Math.floor(Date.now() / 1000).toString().slice(-8);
+    // 性能时间戳的后4位
+    const perfTime = Math.floor(performance.now() * 100).toString().slice(-4);
+    // 6位随机数
     const random = Math.floor(Math.random() * 999999).toString().padStart(6, '0');
+    // 4位会话随机数
     const sessionRandom = Math.floor(Math.random() * 9999).toString().padStart(4, '0');
-    // 添加更多随机性和微秒级时间戳
-    const microRandom = Math.floor(Math.random() * 99999).toString().padStart(5, '0');
-    const performanceTime = Math.floor(performance.now() * 1000).toString().slice(-6);
-    return `demo_${timestamp}_${performanceTime}_${random}_${sessionRandom}_${microRandom}`;
+    
+    // 格式：demo + 8位时间戳 + 4位性能时间 + 6位随机数 + 4位会话随机数 = 26位
+    const orderId = `demo${timestamp}${perfTime}${random}${sessionRandom}`;
+    
+    console.log('生成订单ID:', orderId, '长度:', orderId.length);
+    return orderId;
   };
 
   // 计算订单总额
