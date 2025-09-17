@@ -62,9 +62,13 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ country, scenario }) => {
   }, [scenario.id, form]);
 
   const generateMerchantTransId = () => {
-    const timestamp = new Date().toISOString().replace(/[-:]/g, '').split('.')[0];
+    const timestamp = Date.now(); // 使用毫秒时间戳确保唯一性
     const random = Math.floor(Math.random() * 999999).toString().padStart(6, '0');
-    return `demo_${timestamp}_${random}`;
+    const sessionRandom = Math.floor(Math.random() * 9999).toString().padStart(4, '0');
+    // 添加更多随机性和微秒级时间戳
+    const microRandom = Math.floor(Math.random() * 99999).toString().padStart(5, '0');
+    const performanceTime = Math.floor(performance.now() * 1000).toString().slice(-6);
+    return `demo_${timestamp}_${performanceTime}_${random}_${sessionRandom}_${microRandom}`;
   };
 
   // 计算订单总额
@@ -83,14 +87,19 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ country, scenario }) => {
   const orderSummary = calculateTotal();
 
   const handleSubmit = async (values: any) => {
-    setLoading(true);
-    setError(null);
+    // 强制重置所有状态，确保全新开始
     setResult(null);
+    setError(null);
     setCurrentStep(1);
+    setLoading(true);
 
     try {
+      // 每次提交时都生成新的订单ID
       const merchantTransId = generateMerchantTransId();
       const baseUrl = window.location.origin;
+      
+      console.log('创建新的支付请求 - merchantTransId:', merchantTransId);
+      console.log('当前时间戳:', Date.now(), '，性能时间:', performance.now());
       
       const paymentRequest: PaymentRequest = {
         amount: orderSummary.total,
@@ -115,6 +124,7 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ country, scenario }) => {
         response = await apiService.createInteraction(paymentRequest);
       }
 
+      console.log('支付请求成功响应:', response);
       setResult(response);
       setCurrentStep(2);
 
@@ -424,15 +434,53 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ country, scenario }) => {
                       const merchantTransId = result.merchantTransId || generateMerchantTransId();
                       navigate(`/payment-result?orderId=${merchantTransId}&paymentType=dropin`);
                     }}
-                    onPaymentFailed={(params) => {
+                    onPaymentFailed={async (params) => {
                       console.log('Payment failed:', params);
                       const errorMessage = params.message || 'Unknown error';
                       
-                      // 特殊处理“订单已支付”错误
+                      // 特殊处理"订单已支付"错误
                       if (errorMessage.toLowerCase().includes('order has been paid') || 
                           errorMessage.toLowerCase().includes('订单已支付') ||
-                          errorMessage.toLowerCase().includes('already paid')) {
-                        setError('订单已经支付完成。请点击“返回”按钮重新开始一个新的支付测试。');
+                          errorMessage.toLowerCase().includes('already paid') ||
+                          errorMessage.toLowerCase().includes('已经支付完成')) {
+                        console.log('检测到订单重复错误，自动创建新订单');
+                        
+                        try {
+                          // 重置状态
+                          setResult(null);
+                          setError(null);
+                          setCurrentStep(1);
+                          setLoading(true);
+                          
+                          // 生成全新的订单ID
+                          const newMerchantTransId = generateMerchantTransId();
+                          const baseUrl = window.location.origin;
+                          
+                          console.log('自动重试 - 新merchantTransId:', newMerchantTransId);
+                          
+                          const paymentRequest: PaymentRequest = {
+                            amount: orderSummary.total,
+                            currency: country.currency,
+                            merchantTransId: newMerchantTransId,
+                            paymentType: scenario.type,
+                            returnUrl: `${baseUrl}/payment-result?orderId=${newMerchantTransId}&paymentType=${scenario.type}`,
+                            webhookUrl: `${baseUrl}/api/v1/payment/webhook`,
+                          };
+                          
+                          const newResponse = await apiService.createInteraction(paymentRequest);
+                          console.log('自动重试成功:', newResponse);
+                          
+                          setResult(newResponse);
+                          setCurrentStep(2);
+                          setError('已自动创建新订单，请在Drop-in组件中完成支付。');
+                          
+                        } catch (retryErr: any) {
+                          console.error('自动重试失败:', retryErr);
+                          setError('检测到订单重复问题，自动创建新订单失败。请点击"返回"重新开始。');
+                          setCurrentStep(0);
+                        } finally {
+                          setLoading(false);
+                        }
                       } else {
                         setError('Payment failed: ' + errorMessage);
                       }
