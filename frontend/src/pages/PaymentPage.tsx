@@ -50,16 +50,7 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ country, scenario }) => {
   const [result, setResult] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
   const [currentStep, setCurrentStep] = useState(0);
-
-  // 在组件挂载或scenario改变时重置状态
-  useEffect(() => {
-    setResult(null);
-    setError(null);
-    setCurrentStep(0);
-    setLoading(false);
-    // 重置表单
-    form.resetFields();
-  }, [scenario.id, form]);
+  const [currentOrderId, setCurrentOrderId] = useState<string>(''); // 存储当前的订单ID
 
   const generateMerchantTransId = () => {
     // 使用当前时间戳的后8位（秒级时间戳）
@@ -77,6 +68,21 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ country, scenario }) => {
     console.log('生成订单ID:', orderId, '长度:', orderId.length);
     return orderId;
   };
+
+  // 在组件挂载或scenario改变时重置状态并生成新的订单ID
+  useEffect(() => {
+    console.log('组件初始化或scenario改变，重置状态并生成新订单ID');
+    setResult(null);
+    setError(null);
+    setCurrentStep(0);
+    setLoading(false);
+    // 立即生成新的订单ID
+    const newOrderId = generateMerchantTransId();
+    setCurrentOrderId(newOrderId);
+    console.log('为新的支付流程生成订单ID:', newOrderId);
+    // 重置表单
+    form.resetFields();
+  }, [scenario.id, form]);
 
   // 计算订单总额
   const calculateTotal = () => {
@@ -101,11 +107,11 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ country, scenario }) => {
     setLoading(true);
 
     try {
-      // 每次提交时都生成新的订单ID
-      const merchantTransId = generateMerchantTransId();
+      // 使用预生成的订单ID，如果没有则生成新的
+      const merchantTransId = currentOrderId || generateMerchantTransId();
       const baseUrl = window.location.origin;
       
-      console.log('创建新的支付请求 - merchantTransId:', merchantTransId);
+      console.log('使用订单ID创建支付请求 - merchantTransId:', merchantTransId);
       console.log('当前时间戳:', Date.now(), '，性能时间:', performance.now());
       
       const paymentRequest: PaymentRequest = {
@@ -437,8 +443,8 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ country, scenario }) => {
                     environment={scenario.environment}
                     onPaymentCompleted={(params) => {
                       console.log('Payment completed:', params);
-                      // Drop-in支付完成后跳转到结果页面，传递支付类型参数
-                      const merchantTransId = result.merchantTransId || generateMerchantTransId();
+                      // Drop-in支付完成后跳转到结果页面，使用预生成的订单ID
+                      const merchantTransId = currentOrderId || result.merchantTransId || generateMerchantTransId();
                       navigate(`/payment-result?orderId=${merchantTransId}&paymentType=dropin`);
                     }}
                     onPaymentFailed={async (params) => {
@@ -461,6 +467,8 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ country, scenario }) => {
                           
                           // 生成全新的订单ID
                           const newMerchantTransId = generateMerchantTransId();
+                          // 更新当前订单ID
+                          setCurrentOrderId(newMerchantTransId);
                           const baseUrl = window.location.origin;
                           
                           console.log('自动重试 - 新merchantTransId:', newMerchantTransId);
