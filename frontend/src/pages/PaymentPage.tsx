@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, Form, Input, Button, Row, Col, Typography, Space, Alert, Divider, Tag, Steps } from 'antd';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
@@ -50,6 +50,16 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ country, scenario }) => {
   const [result, setResult] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
   const [currentStep, setCurrentStep] = useState(0);
+
+  // 在组件挂载或scenario改变时重置状态
+  useEffect(() => {
+    setResult(null);
+    setError(null);
+    setCurrentStep(0);
+    setLoading(false);
+    // 重置表单
+    form.resetFields();
+  }, [scenario.id, form]);
 
   const generateMerchantTransId = () => {
     const timestamp = new Date().toISOString().replace(/[-:]/g, '').split('.')[0];
@@ -416,7 +426,16 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ country, scenario }) => {
                     }}
                     onPaymentFailed={(params) => {
                       console.log('Payment failed:', params);
-                      setError('Payment failed: ' + (params.message || 'Unknown error'));
+                      const errorMessage = params.message || 'Unknown error';
+                      
+                      // 特殊处理“订单已支付”错误
+                      if (errorMessage.toLowerCase().includes('order has been paid') || 
+                          errorMessage.toLowerCase().includes('订单已支付') ||
+                          errorMessage.toLowerCase().includes('already paid')) {
+                        setError('订单已经支付完成。请点击“返回”按钮重新开始一个新的支付测试。');
+                      } else {
+                        setError('Payment failed: ' + errorMessage);
+                      }
                     }}
                     onPaymentCancelled={(params) => {
                       console.log('Payment cancelled:', params);
