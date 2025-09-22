@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Card, Select, Button, Row, Col, Typography, Space, Spin, Alert, Badge } from 'antd';
+import { Card, Select, Button, Row, Col, Typography, Space, Spin, Alert, Badge, Switch, message } from 'antd';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { 
@@ -9,10 +9,12 @@ import {
   LinkOutlined,
   ApiOutlined,
   SafetyOutlined,
-  TranslationOutlined
+  TranslationOutlined,
+  SettingOutlined
 } from '@ant-design/icons';
 import { useApp } from '../context/AppContext';
 import { getSupportedLanguage, getLanguageByCountry } from '../locales';
+import { apiService } from '../services/api';
 import type { Country, PaymentScenario } from '../types';
 import i18n from '../locales';
 
@@ -53,6 +55,23 @@ const HomePage: React.FC<HomePageProps> = () => {
   const navigate = useNavigate();
   const { state, loading, error, config, selectCountry, selectScenario } = useApp();
   const [selectedScenarioId, setSelectedScenarioId] = useState<string | null>(null);
+  const [environmentSwitching, setEnvironmentSwitching] = useState(false);
+
+  const handleEnvironmentSwitch = async (checked: boolean) => {
+    const targetEnv = checked ? 'production' : 'sandbox';
+    setEnvironmentSwitching(true);
+    
+    try {
+      await apiService.switchEnvironment(targetEnv);
+      message.success(`已切换到 ${targetEnv === 'production' ? 'Production' : 'Sandbox'} 环境`);
+      // 重新加载页面以获取最新配置
+      window.location.reload();
+    } catch (err: any) {
+      message.error(`环境切换失败: ${err.message}`);
+    } finally {
+      setEnvironmentSwitching(false);
+    }
+  };
 
   const handleCountryChange = (value: string) => {
     const country = state.countries.find(c => c.code === value);
@@ -95,7 +114,7 @@ const HomePage: React.FC<HomePageProps> = () => {
         </div>
       </div>
     );
-  };
+  }
 
   return (
     <div className="homepage-container">
@@ -193,13 +212,26 @@ const HomePage: React.FC<HomePageProps> = () => {
             {config && (
               <div className="status-indicator fade-in-up delay-200">
                 <SafetyOutlined className="status-icon" />
-                <span className="status-text">
-                  Live API Mode
-                </span>
-                <Badge 
-                  status="processing" 
-                  text={config.environment || 'Sandbox'}
-                />
+                <div className="api-mode-display">
+                  <span className="status-text">Live API Mode</span>
+                  <Badge 
+                    status="processing" 
+                    text={config.apiMode || 'Sandbox'}
+                  />
+                  
+                  {/* 环境切换开关 */}
+                  <div className="env-switch-container">
+                    <SettingOutlined className="setting-icon" />
+                    <span className="switch-label">Production Mode</span>
+                    <Switch
+                      checked={config.currentEnv === 'production'}
+                      onChange={handleEnvironmentSwitch}
+                      loading={environmentSwitching}
+                      checkedChildren="Prod"
+                      unCheckedChildren="Sand"
+                    />
+                  </div>
+                </div>
               </div>
             )}
           </div>

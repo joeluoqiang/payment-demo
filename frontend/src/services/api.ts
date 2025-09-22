@@ -52,6 +52,13 @@ export const apiService = {
     return response.data.data;
   },
 
+  // 切换API环境
+  switchEnvironment: async (environment: 'sandbox' | 'production'): Promise<any> => {
+    console.log(`切换环境到: ${environment}`);
+    const response = await api.post('/config/switch-env', { environment });
+    return response.data.data;
+  },
+
   // 创建支付交互（LinkPay和Drop-in）
   createInteraction: async (request: PaymentRequest): Promise<PaymentResponse> => {
     const response = await api.post('/payment/interaction', request);

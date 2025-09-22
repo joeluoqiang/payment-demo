@@ -200,6 +200,70 @@ body {
   align-items: center;
 }
 
+/* API模式显示和环境切换样式 */
+.api-mode-display {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.env-switch-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: all var(--transition-normal);
+}
+
+.env-switch-container:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.setting-icon {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 14px;
+}
+
+.switch-label {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+/* 自定义Switch颜色 */
+.env-switch-container .ant-switch {
+  background-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+.env-switch-container .ant-switch-checked {
+  background-color: var(--success-color) !important;
+}
+
+.env-switch-container .ant-switch-loading {
+  background-color: var(--warning-color) !important;
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+  .api-mode-display {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  
+  .env-switch-container {
+    align-self: stretch;
+    justify-content: space-between;
+  }
+}
+
 .homepage-container {
   min-height: 100vh;
   background: linear-gradient(135deg, #0275DD 0%, #054D8E 100%);

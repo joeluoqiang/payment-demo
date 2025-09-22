@@ -25,29 +25,30 @@ type PaymentService struct {
 }
 
 // validatePaymentConfig 验证支付服务所需的配置
-func validatePaymentConfig(config *config.Config) error {
-	if config.EvonetKeyID == "" {
-		return errors.New("EVONET_KEY_ID is required for payment service")
+func validatePaymentConfig(cfg *config.Config) error {
+	currentConfig := cfg.GetCurrentEvonetConfig()
+	if currentConfig.KeyID == "" {
+		return errors.New("Evonet KeyID is required for payment service")
 	}
-	if config.EvonetSignKey == "" {
-		return errors.New("EVONET_SIGN_KEY is required for payment service")
+	if currentConfig.SignKey == "" {
+		return errors.New("Evonet SignKey is required for payment service")
 	}
-	if config.EvonetAPIURL == "" {
-		return errors.New("EVONET_API_URL is required for payment service")
+	if currentConfig.APIURL == "" {
+		return errors.New("Evonet API URL is required for payment service")
 	}
 	return nil
 }
 
 func NewPaymentService() *PaymentService {
-	config := config.Load()
+	cfg := config.Load()
 	
 	// 再次验证配置（双重保险）
-	if err := validatePaymentConfig(config); err != nil {
+	if err := validatePaymentConfig(cfg); err != nil {
 		log.Fatalf("Payment service configuration validation failed: %v", err)
 	}
 	
 	return &PaymentService{
-		config: config,
+		config: cfg,
 		client: &http.Client{Timeout: 30 * time.Second},
 	}
 }
@@ -354,8 +355,10 @@ func (s *PaymentService) normalizeStatus(status string) string {
 
 // 发送请求到Evonet API
 func (s *PaymentService) sendEvonetRequest(method, endpoint string, data interface{}) ([]byte, error) {
-	url := s.config.EvonetAPIURL + endpoint
-	fmt.Printf("[sendEvonetRequest] %s %s\n", method, url)
+	// 获取当前环境的配置
+	currentConfig := s.config.GetCurrentEvonetConfig()
+	url := currentConfig.APIURL + endpoint
+	fmt.Printf("[sendEvonetRequest] %s %s (使用%s环境)\n", method, url, s.config.GetAPIMode())
 
 	var body []byte
 	if data != nil {
@@ -376,15 +379,15 @@ func (s *PaymentService) sendEvonetRequest(method, endpoint string, data interfa
 	dateTime := time.Now().Format("2006-01-02T15:04:05+08:00")
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("DateTime", dateTime)
-	req.Header.Set("KeyID", s.config.EvonetKeyID)
+	req.Header.Set("KeyID", currentConfig.KeyID)
 	req.Header.Set("SignType", "Key-based")
 
-	fmt.Printf("[sendEvonetRequest] Headers - KeyID: %s, DateTime: %s\n", s.config.EvonetKeyID, dateTime)
+	fmt.Printf("[sendEvonetRequest] Headers - KeyID: %s, DateTime: %s\n", currentConfig.KeyID, dateTime)
 
 	// 生成签名
-	if s.config.EvonetSignKey != "" {
-		req.Header.Set("Authorization", s.config.EvonetSignKey)
-		fmt.Printf("[sendEvonetRequest] Authorization: %s\n", s.config.EvonetSignKey)
+	if currentConfig.SignKey != "" {
+		req.Header.Set("Authorization", currentConfig.SignKey)
+		fmt.Printf("[sendEvonetRequest] Authorization: %s\n", currentConfig.SignKey)
 	}
 
 	// 生成幂等性密钥
@@ -420,8 +423,9 @@ func (s *PaymentService) sendEvonetRequest(method, endpoint string, data interfa
 
 // 生成HMAC签名
 func (s *PaymentService) generateSignature(method, endpoint, body, dateTime string) string {
+	currentConfig := s.config.GetCurrentEvonetConfig()
 	message := method + endpoint + body + dateTime
-	h := hmac.New(sha256.New, []byte(s.config.EvonetSignKey))
+	h := hmac.New(sha256.New, []byte(currentConfig.SignKey))
 	h.Write([]byte(message))
 	signature := hex.EncodeToString(h.Sum(nil))
 	return "sk_" + s.config.Environment + "_" + signature

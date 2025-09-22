@@ -22,6 +22,7 @@ func SetupRoutes(r *gin.Engine) {
 		v1.GET("/countries", getCountries)
 		v1.GET("/scenarios", getScenarios)
 		v1.GET("/config", getConfig)
+		v1.POST("/config/switch-env", switchAPIEnvironment)
 
 		// 支付相关
 		payment := v1.Group("/payment")
@@ -217,15 +218,72 @@ func getInteractionStatus(c *gin.Context) {
 	})
 }
 
-// 获取配置信息
+// 获取配置信息（更新返回环境模式信息）
 func getConfig(c *gin.Context) {
 	cfg := config.Load()
+	currentConfig := cfg.GetCurrentEvonetConfig()
 
 	c.JSON(200, gin.H{
 		"success": true,
 		"data": gin.H{
 			"environment": cfg.Environment,
-			"apiUrl":      cfg.EvonetAPIURL,
+			"apiMode":     cfg.GetAPIMode(),
+			"apiUrl":      currentConfig.APIURL,
+			"hasApiKeys":  cfg.HasAPIKeys(),
+			"currentEnv":  string(cfg.CurrentAPIEnv),
+		},
+	})
+}
+
+// 切换API环境
+func switchAPIEnvironment(c *gin.Context) {
+	var req struct {
+		Environment string `json:"environment" binding:"required"`
+	}
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(400, gin.H{
+			"success": false,
+			"message": "Invalid request parameters",
+			"error":   err.Error(),
+		})
+		return
+	}
+
+	cfg := config.Load()
+	var apiEnv config.APIEnvironment
+
+	switch req.Environment {
+	case "sandbox":
+		apiEnv = config.Sandbox
+	case "production":
+		apiEnv = config.Production
+	default:
+		c.JSON(400, gin.H{
+			"success": false,
+			"message": "Invalid environment, must be 'sandbox' or 'production'",
+		})
+		return
+	}
+
+	if err := cfg.SwitchAPIEnvironment(apiEnv); err != nil {
+		c.JSON(500, gin.H{
+			"success": false,
+			"message": "Failed to switch environment",
+			"error":   err.Error(),
+		})
+		return
+	}
+
+	// 返回切换后的配置信息
+	currentConfig := cfg.GetCurrentEvonetConfig()
+	c.JSON(200, gin.H{
+		"success": true,
+		"message": "Environment switched successfully",
+		"data": gin.H{
+			"apiMode":    cfg.GetAPIMode(),
+			"apiUrl":     currentConfig.APIURL,
+			"currentEnv": string(cfg.CurrentAPIEnv),
 		},
 	})
 }
