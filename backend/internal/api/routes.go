@@ -224,8 +224,7 @@ func getConfig(c *gin.Context) {
 	c.JSON(200, gin.H{
 		"success": true,
 		"data": gin.H{
-			"hasApiKeys":  cfg.EvonetKeyID != "" && cfg.EvonetSignKey != "",
-			"environment": "UAT", // 固定显示UAT
+			"environment": cfg.Environment,
 			"apiUrl":      cfg.EvonetAPIURL,
 		},
 	})

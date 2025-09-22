@@ -8,10 +8,13 @@ import {
   ShoppingCartOutlined,
   LinkOutlined,
   ApiOutlined,
-  SafetyOutlined
+  SafetyOutlined,
+  TranslationOutlined
 } from '@ant-design/icons';
 import { useApp } from '../context/AppContext';
+import { getSupportedLanguage, getLanguageByCountry } from '../locales';
 import type { Country, PaymentScenario } from '../types';
+import i18n from '../locales';
 
 const { Title, Paragraph, Text } = Typography;
 const { Option } = Select;
@@ -55,7 +58,20 @@ const HomePage: React.FC<HomePageProps> = () => {
     const country = state.countries.find(c => c.code === value);
     if (country) {
       selectCountry(country);
+      // 根据国家自动切换语言
+      const countryLanguage = getLanguageByCountry(value);
+      const supportedLang = getSupportedLanguage(countryLanguage);
+      if (i18n.language !== supportedLang) {
+        i18n.changeLanguage(supportedLang);
+        console.log(`[HomePage] Language changed to: ${supportedLang} for country: ${value}`);
+      }
     }
+  };
+
+  const handleLanguageChange = (value: string) => {
+    const supportedLang = getSupportedLanguage(value);
+    i18n.changeLanguage(supportedLang);
+    console.log(`[HomePage] Manual language change to: ${supportedLang}`);
   };
 
   const handleScenarioSelect = (scenarioId: string) => {
@@ -94,31 +110,71 @@ const HomePage: React.FC<HomePageProps> = () => {
             />
           </div>
           
-          <div className="country-selector">
-            <GlobalOutlined className="country-icon" />
-            <Select
-              className="country-select"
-              value={state.selectedCountry?.code || 'GLOBAL'}
-              onChange={handleCountryChange}
-              suffixIcon={null}
-              bordered={false}
-            >
-              {state.countries.map((country: Country) => (
-                <Option key={country.code} value={country.code}>
+          <div className="header-controls">
+            {/* 语言选择器 */}
+            <div className="language-selector">
+              <TranslationOutlined className="language-icon" />
+              <Select
+                className="language-select"
+                value={i18n.language}
+                onChange={handleLanguageChange}
+                suffixIcon={null}
+                bordered={false}
+              >
+                <Option value="en">
                   <Space>
-                    <span>{t(`countries.${country.code}`)}</span>
-                    <Badge 
-                      count={country.currency} 
-                      style={{ 
-                        backgroundColor: 'var(--primary-color)', 
-                        fontSize: '10px',
-                        minWidth: '32px'
-                      }} 
-                    />
+                    <span>🇺🇸</span>
+                    <span>English</span>
                   </Space>
                 </Option>
-              ))}
-            </Select>
+                <Option value="zh">
+                  <Space>
+                    <span>🇨🇳</span>
+                    <span>中文</span>
+                  </Space>
+                </Option>
+                <Option value="ko">
+                  <Space>
+                    <span>🇰🇷</span>
+                    <span>한국어</span>
+                  </Space>
+                </Option>
+                <Option value="ja">
+                  <Space>
+                    <span>🇯🇵</span>
+                    <span>日本語</span>
+                  </Space>
+                </Option>
+              </Select>
+            </div>
+            
+            {/* 国家选择器 */}
+            <div className="country-selector">
+              <GlobalOutlined className="country-icon" />
+              <Select
+                className="country-select"
+                value={state.selectedCountry?.code || 'GLOBAL'}
+                onChange={handleCountryChange}
+                suffixIcon={null}
+                bordered={false}
+              >
+                {state.countries.map((country: Country) => (
+                  <Option key={country.code} value={country.code}>
+                    <Space>
+                      <span>{t(`countries.${country.code}`)}</span>
+                      <Badge 
+                        count={country.currency} 
+                        style={{ 
+                          backgroundColor: 'var(--primary-color)', 
+                          fontSize: '10px',
+                          minWidth: '32px'
+                        }} 
+                      />
+                    </Space>
+                  </Option>
+                ))}
+              </Select>
+            </div>
           </div>
         </div>
       </header>
@@ -138,10 +194,10 @@ const HomePage: React.FC<HomePageProps> = () => {
               <div className="status-indicator fade-in-up delay-200">
                 <SafetyOutlined className="status-icon" />
                 <span className="status-text">
-                  {config.hasApiKeys ? 'Live API Mode' : 'Demo Mode'}
+                  Live API Mode
                 </span>
                 <Badge 
-                  status={config.hasApiKeys ? 'processing' : 'default'} 
+                  status="processing" 
                   text={config.environment || 'Sandbox'}
                 />
               </div>

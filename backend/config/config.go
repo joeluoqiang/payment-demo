@@ -1,6 +1,7 @@
 package config
 
 import (
+	"errors"
 	"log"
 	"os"
 
@@ -26,7 +27,7 @@ func Load() *Config {
 		log.Println("No .env file found, using system environment variables")
 	}
 
-	return &Config{
+	config := &Config{
 		Port:          getEnv("PORT", "8080"),
 		Environment:   getEnv("ENVIRONMENT", "development"),
 		EvonetAPIURL:  getEnv("EVONET_API_URL", "https://sandbox.evonetonline.com"),
@@ -34,6 +35,27 @@ func Load() *Config {
 		EvonetSignKey: getEnv("EVONET_SIGN_KEY", ""),
 		FrontendURL:   getEnv("FRONTEND_URL", "http://localhost:5173"),
 	}
+
+	// 验证必需配置
+	if err := config.Validate(); err != nil {
+		log.Fatalf("Configuration validation failed: %v", err)
+	}
+
+	return config
+}
+
+// Validate 验证配置的必需参数
+func (c *Config) Validate() error {
+	if c.EvonetKeyID == "" {
+		return errors.New("EVONET_KEY_ID is required")
+	}
+	if c.EvonetSignKey == "" {
+		return errors.New("EVONET_SIGN_KEY is required")
+	}
+	if c.EvonetAPIURL == "" {
+		return errors.New("EVONET_API_URL is required")
+	}
+	return nil
 }
 
 func getEnv(key, defaultValue string) string {

@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"os"
 
+	"payment-demo/config"
 	"payment-demo/internal/api"
 
 	"github.com/gin-contrib/cors"
@@ -12,6 +13,10 @@ import (
 )
 
 func main() {
+	// 在启动时验证配置
+	cfg := config.Load()
+	log.Printf("Configuration loaded successfully for environment: %s", cfg.Environment)
+
 	r := gin.Default()
 
 	// CORS配置

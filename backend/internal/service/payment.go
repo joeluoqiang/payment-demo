@@ -6,8 +6,10 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"payment-demo/config"
 	"payment-demo/internal/models"
@@ -22,25 +24,39 @@ type PaymentService struct {
 	client *http.Client
 }
 
+// validatePaymentConfig 验证支付服务所需的配置
+func validatePaymentConfig(config *config.Config) error {
+	if config.EvonetKeyID == "" {
+		return errors.New("EVONET_KEY_ID is required for payment service")
+	}
+	if config.EvonetSignKey == "" {
+		return errors.New("EVONET_SIGN_KEY is required for payment service")
+	}
+	if config.EvonetAPIURL == "" {
+		return errors.New("EVONET_API_URL is required for payment service")
+	}
+	return nil
+}
+
 func NewPaymentService() *PaymentService {
+	config := config.Load()
+	
+	// 再次验证配置（双重保险）
+	if err := validatePaymentConfig(config); err != nil {
+		log.Fatalf("Payment service configuration validation failed: %v", err)
+	}
+	
 	return &PaymentService{
-		config: config.Load(),
+		config: config,
 		client: &http.Client{Timeout: 30 * time.Second},
 	}
 }
 
-// hasAPIKeys 检查是否配置了API密钥
-func (s *PaymentService) hasAPIKeys() bool {
-	return s.config.EvonetKeyID != "" && s.config.EvonetSignKey != ""
-}
+
 
 // 创建支付交互（LinkPay和Drop-in）
 func (s *PaymentService) CreateInteraction(req *models.PaymentRequest) (*models.PaymentResponse, error) {
-	// 检查配置
-	if s.config.EvonetKeyID == "" || s.config.EvonetSignKey == "" {
-		// 为了演示目的，返回模拟响应
-		return s.createMockInteractionResponse(req), nil
-	}
+
 
 	// 构建Evonet API请求
 	// 根据Evonet API文档的标准格式
@@ -100,11 +116,7 @@ func (s *PaymentService) CreateDirectPayment(req *models.PaymentRequest) (*model
 		return nil, fmt.Errorf("card information is required for direct payment")
 	}
 
-	// 检查配置
-	if s.config.EvonetKeyID == "" || s.config.EvonetSignKey == "" {
-		// 为了演示目的，返回模拟响应
-		return s.createMockDirectPaymentResponse(req), nil
-	}
+
 
 	// 构建Evonet Direct API请求
 	evonetReq := map[string]interface{}{
@@ -171,23 +183,13 @@ func (s *PaymentService) CreateDirectPayment(req *models.PaymentRequest) (*model
 
 // GetPaymentStatus 获取支付状态
 func (s *PaymentService) GetPaymentStatus(merchantTransID string) (*models.Payment, error) {
-	if !s.hasAPIKeys() {
-		// 演示模式：返回模拟支付状态
-		return s.createMockPaymentStatus(merchantTransID), nil
-	}
-
-	// 真实API模式：调用Evonet API查询状态
+	// 调用Evonet API查询状态
 	return s.queryRealPaymentStatus(merchantTransID)
 }
 
 // GetInteractionStatus 获取交互状态（用于LinkPay和Drop-in）
 func (s *PaymentService) GetInteractionStatus(merchantOrderID string) (*models.Payment, error) {
-	if !s.hasAPIKeys() {
-		// 演示模式：返回模拟支付状态
-		return s.createMockPaymentStatus(merchantOrderID), nil
-	}
-
-	// 真实API模式：调用Evonet API查询交互状态
+	// 调用Evonet API查询交互状态
 	return s.queryRealInteractionStatus(merchantOrderID)
 }
 
@@ -425,60 +427,8 @@ func (s *PaymentService) generateSignature(method, endpoint, body, dateTime stri
 	return "sk_" + s.config.Environment + "_" + signature
 }
 
-// 创建模拟交互响应（用于演示）
-func (s *PaymentService) createMockInteractionResponse(req *models.PaymentRequest) *models.PaymentResponse {
-	sessionID := "demo_session_" + utils.GenerateIdempotencyKey()
-	linkURL := ""
 
-	// 如果是 LinkPay，生成模拟链接
-	if req.PaymentType == "linkpay" {
-		linkURL = "https://demo.linkpay.com/payment?session=" + sessionID
-	}
 
-	return &models.PaymentResponse{
-		Success:         true,
-		SessionID:       sessionID,
-		LinkURL:         linkURL,
-		MerchantTransID: req.MerchantTransID,
-		Status:          "pending",
-		Message:         "Demo mode: Payment interaction created successfully",
-	}
-}
 
-// 创建模拟直接支付响应（用于演示）
-func (s *PaymentService) createMockDirectPaymentResponse(req *models.PaymentRequest) *models.PaymentResponse {
-	// 模拟成功支付
-	return &models.PaymentResponse{
-		Success:         true,
-		MerchantTransID: req.MerchantTransID,
-		Status:          "captured",
-		Message:         "Demo mode: Payment completed successfully",
-	}
-}
 
-// 创建模拟支付状态（用于演示）
-func (s *PaymentService) createMockPaymentStatus(merchantTransID string) *models.Payment {
-	// 模拟不同的支付状态
-	statuses := []string{"captured", "pending", "failed"}
-	statusIndex := len(merchantTransID) % len(statuses)
-	status := statuses[statusIndex]
 
-	// 为captured状态提供更详细的信息
-	if status == "captured" {
-		return &models.Payment{
-			MerchantTransID: merchantTransID,
-			Status:          "captured",
-			Amount:          300, // 模拟金额（整数）
-			Currency:        "USD",
-			CreatedAt:       time.Now().Add(-time.Minute * 5), // 5分钟前创建
-		}
-	}
-
-	return &models.Payment{
-		MerchantTransID: merchantTransID,
-		Status:          status,
-		Amount:          289.97, // 模拟金额
-		Currency:        "USD",
-		CreatedAt:       time.Now().Add(-time.Minute * 5), // 5分钟前创建
-	}
-}
