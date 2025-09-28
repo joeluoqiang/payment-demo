@@ -135,6 +135,13 @@ const DropInComponent: React.FC<DropInComponentProps> = ({
     }
   }, [sdkLoaded, sessionId, isInitializing]);
 
+  // 当sessionId变化时，重置初始化状态
+  useEffect(() => {
+    console.log('SessionId changed, resetting initialization state:', sessionId);
+    setIsInitializing(false);
+    setError(null);
+  }, [sessionId]);
+
   // 如果需要使用模拟组件
   if (useMockComponent) {
     return (

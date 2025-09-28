@@ -71,7 +71,7 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ country, scenario }) => {
 
   // 在组件挂载或scenario改变时重置状态并生成新的订单ID
   useEffect(() => {
-    console.log('组件初始化或scenario改变，重置状态并生成新订单ID');
+    console.log('组件初始化或scenario改变，重置状态并生成新订单ID - scenario.id:', scenario.id);
     setResult(null);
     setError(null);
     setCurrentStep(0);
@@ -439,6 +439,7 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ country, scenario }) => {
                     style={{ marginBottom: 16 }}
                   />
                   <DropInComponent
+                    key={result.sessionId} // 强制React在sessionId变化时重新挂载组件
                     sessionId={result.sessionId}
                     environment={scenario.environment}
                     onPaymentCompleted={(params) => {
@@ -485,6 +486,8 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ country, scenario }) => {
                           const response = await apiService.createInteraction(paymentRequest);
                           
                           console.log('新交互创建成功:', response);
+                          console.log('新SessionID:', response.sessionId);
+                          console.log('旧SessionID:', result?.sessionId);
                           setResult(response);
                           setCurrentStep(2);
                         } catch (err: any) {
