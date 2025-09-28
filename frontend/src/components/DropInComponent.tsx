@@ -140,6 +140,10 @@ const DropInComponent: React.FC<DropInComponentProps> = ({
     console.log('SessionId changed, resetting initialization state:', sessionId);
     setIsInitializing(false);
     setError(null);
+    // 清理容器内容，确保旧的SDK实例不会干扰
+    if (containerRef.current) {
+      containerRef.current.innerHTML = '';
+    }
   }, [sessionId]);
 
   // 如果需要使用模拟组件

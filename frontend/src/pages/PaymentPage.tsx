@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Card, Form, Input, Button, Row, Col, Typography, Space, Alert, Divider, Tag, Steps } from 'antd';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { 
   ArrowLeftOutlined, 
   CreditCardOutlined, 
@@ -45,6 +45,7 @@ const mockProducts = [
 const PaymentPage: React.FC<PaymentPageProps> = ({ country, scenario }) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const location = useLocation();
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<any>(null);
@@ -84,6 +85,21 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ country, scenario }) => {
     form.resetFields();
   }, [scenario.id]); // 移除form依赖，防止无限循环
 
+  // 额外的重置机制：每次组件挂载或URL变化都强制重置状态
+  useEffect(() => {
+    console.log('PaymentPage组件挂载或URL变化，强制重置所有状态', location.search);
+    // 生成全新的订单ID
+    const freshOrderId = generateMerchantTransId();
+    setCurrentOrderId(freshOrderId);
+    setResult(null);
+    setError(null);
+    setCurrentStep(0);
+    setLoading(false);
+    console.log('URL变化时生成全新订单ID:', freshOrderId);
+    // 重置表单
+    form.resetFields();
+  }, [location.search]); // 监听URL参数变化
+
   // 计算订单总额
   const calculateTotal = () => {
     const subtotal = mockProducts.reduce((sum, product) => sum + (product.price * product.quantity), 0);
@@ -101,6 +117,7 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ country, scenario }) => {
 
   const handleSubmit = async (values: any) => {
     // 强制重置所有状态，确保全新开始
+    console.log('开始新的支付流程，当前订单ID:', currentOrderId);
     setResult(null);
     setError(null);
     setCurrentStep(1);

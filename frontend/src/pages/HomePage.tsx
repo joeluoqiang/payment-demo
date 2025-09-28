@@ -89,9 +89,10 @@ const HomePage: React.FC<HomePageProps> = () => {
     if (scenario) {
       selectScenario(scenario);
       setSelectedScenarioId(scenarioId);
-      // 直接进入支付演示
+      // 直接进入支付演示，添加时间戳确保每次都是全新的体验
+      const timestamp = Date.now();
       setTimeout(() => {
-        navigate('/payment');
+        navigate(`/payment?t=${timestamp}`);
       }, 300);
     }
   };
