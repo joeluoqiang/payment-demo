@@ -8,9 +8,7 @@ import {
   ShoppingCartOutlined,
   LinkOutlined,
   ApiOutlined,
-  SafetyOutlined,
-  TranslationOutlined,
-  SettingOutlined
+  TranslationOutlined
 } from '@ant-design/icons';
 import { useApp } from '../context/AppContext';
 import { getSupportedLanguage, getLanguageByCountry } from '../locales';
