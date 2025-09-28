@@ -41,23 +41,20 @@ func validatePaymentConfig(cfg *config.Config) error {
 
 func NewPaymentService() *PaymentService {
 	cfg := config.Load()
-	
+
 	// 再次验证配置（双重保险）
 	if err := validatePaymentConfig(cfg); err != nil {
 		log.Fatalf("Payment service configuration validation failed: %v", err)
 	}
-	
+
 	return &PaymentService{
 		config: cfg,
 		client: &http.Client{Timeout: 30 * time.Second},
 	}
 }
 
-
-
 // 创建支付交互（LinkPay和Drop-in）
 func (s *PaymentService) CreateInteraction(req *models.PaymentRequest) (*models.PaymentResponse, error) {
-
 
 	// 构建Evonet API请求
 	// 根据Evonet API文档的标准格式
@@ -116,8 +113,6 @@ func (s *PaymentService) CreateDirectPayment(req *models.PaymentRequest) (*model
 	if req.CardInfo == nil {
 		return nil, fmt.Errorf("card information is required for direct payment")
 	}
-
-
 
 	// 构建Evonet Direct API请求
 	evonetReq := map[string]interface{}{
@@ -430,9 +425,3 @@ func (s *PaymentService) generateSignature(method, endpoint, body, dateTime stri
 	signature := hex.EncodeToString(h.Sum(nil))
 	return "sk_" + s.config.Environment + "_" + signature
 }
-
-
-
-
-
-

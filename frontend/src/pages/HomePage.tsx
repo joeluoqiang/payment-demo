@@ -7,8 +7,7 @@ import {
   CreditCardOutlined,
   ShoppingCartOutlined,
   LinkOutlined,
-  ApiOutlined,
-  TranslationOutlined
+  ApiOutlined
 } from '@ant-design/icons';
 import { useApp } from '../context/AppContext';
 import { getSupportedLanguage, getLanguageByCountry } from '../locales';
@@ -85,12 +84,6 @@ const HomePage: React.FC<HomePageProps> = () => {
     }
   };
 
-  const handleLanguageChange = (value: string) => {
-    const supportedLang = getSupportedLanguage(value);
-    i18n.changeLanguage(supportedLang);
-    console.log(`[HomePage] Manual language change to: ${supportedLang}`);
-  };
-
   const handleScenarioSelect = (scenarioId: string) => {
     const scenario = state.scenarios.find(s => s.id === scenarioId);
     if (scenario) {
@@ -128,43 +121,6 @@ const HomePage: React.FC<HomePageProps> = () => {
           </div>
           
           <div className="header-controls">
-            {/* 语言选择器 */}
-            <div className="language-selector">
-              <TranslationOutlined className="language-icon" />
-              <Select
-                className="language-select"
-                value={i18n.language}
-                onChange={handleLanguageChange}
-                suffixIcon={null}
-                bordered={false}
-              >
-                <Option value="en">
-                  <Space>
-                    <span>🇺🇸</span>
-                    <span>English</span>
-                  </Space>
-                </Option>
-                <Option value="zh">
-                  <Space>
-                    <span>🇨🇳</span>
-                    <span>中文</span>
-                  </Space>
-                </Option>
-                <Option value="ko">
-                  <Space>
-                    <span>🇰🇷</span>
-                    <span>한국어</span>
-                  </Space>
-                </Option>
-                <Option value="ja">
-                  <Space>
-                    <span>🇯🇵</span>
-                    <span>日本語</span>
-                  </Space>
-                </Option>
-              </Select>
-            </div>
-            
             {/* 国家选择器 */}
             <div className="country-selector">
               <GlobalOutlined className="country-icon" />

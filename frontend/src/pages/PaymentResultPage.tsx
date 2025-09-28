@@ -39,15 +39,17 @@ const PaymentResultPage: React.FC = () => {
       orderId: params.get('orderId'),
       paymentType: params.get('paymentType') || params.get('type'), // 兼容两种参数名
       merchantOrderID: params.get('merchantOrderID'), // LinkPay返回的订单ID
+      amount: params.get('amount'), // 从URL获取金额作为后备
+      currency: params.get('currency'), // 从URL获取币种作为后备
     };
   };
 
   // 查询支付状态
-  const fetchPaymentStatus = async (orderId: string, paymentType?: string) => {
+  const fetchPaymentStatus = async (orderId: string, paymentType?: string, fallbackData?: { amount?: string, currency?: string }) => {
     try {
       setLoading(true);
       setError(null);
-      console.log('[PaymentResult] 开始查询支付状态:', { orderId, paymentType });
+      console.log('[PaymentResult] 开始查询支付状态:', { orderId, paymentType, fallbackData });
       
       let response;
       
@@ -62,6 +64,21 @@ const PaymentResultPage: React.FC = () => {
         console.log('[PaymentResult] 使用支付状态查询接口 - merchantTransId:', orderId);
         response = await apiService.getPaymentStatus(orderId);
         console.log('[PaymentResult] 支付状态查询结果:', response);
+      }
+      
+      // 如果后端未返回金额信息，使用URL中的后备数据
+      if (fallbackData && (!response.amount || response.amount === 0)) {
+        if (fallbackData.amount) {
+          const amount = parseFloat(fallbackData.amount);
+          if (!isNaN(amount)) {
+            response.amount = amount;
+            console.log('[PaymentResult] 使用URL中的后备金额:', amount);
+          }
+        }
+        if (fallbackData.currency && !response.currency) {
+          response.currency = fallbackData.currency;
+          console.log('[PaymentResult] 使用URL中的后备币种:', fallbackData.currency);
+        }
       }
       
       setPaymentStatus(response);
@@ -83,8 +100,8 @@ const PaymentResultPage: React.FC = () => {
   };
 
   useEffect(() => {
-    const { orderId, paymentType, merchantOrderID } = getOrderInfoFromUrl();
-    console.log('[PaymentResult] URL参数:', { orderId, paymentType, merchantOrderID });
+    const { orderId, paymentType, merchantOrderID, amount, currency } = getOrderInfoFromUrl();
+    console.log('[PaymentResult] URL参数:', { orderId, paymentType, merchantOrderID, amount, currency });
     
     if (!orderId) {
       setError('未找到订单号信息');
@@ -100,7 +117,10 @@ const PaymentResultPage: React.FC = () => {
     }
     
     // 使用API查询支付状态
-    fetchPaymentStatus(queryId, paymentType || undefined);
+    fetchPaymentStatus(queryId, paymentType || undefined, { 
+      amount: amount || undefined, 
+      currency: currency || undefined 
+    });
   }, [location.search]);
 
   const handleRetry = () => {
@@ -277,13 +297,13 @@ const PaymentResultPage: React.FC = () => {
                         </Tag>
                       </Col>
 
-                      {paymentStatus.amount && (
+                      {(paymentStatus.amount !== undefined && paymentStatus.amount !== null && paymentStatus.amount !== 0) && (
                         <>
                           <Col span={12}>
                             <Text strong>Amount:</Text>
                           </Col>
                           <Col span={12}>
-                            <Text>{paymentStatus.currency} {paymentStatus.amount}</Text>
+                            <Text>{paymentStatus.currency || 'USD'} {paymentStatus.amount}</Text>
                           </Col>
                         </>
                       )}

@@ -119,7 +119,7 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ country, scenario }) => {
         currency: country.currency,
         merchantTransId,
         paymentType: scenario.type,
-        returnUrl: `${baseUrl}/payment-result?orderId=${merchantTransId}&paymentType=${scenario.type}`,
+        returnUrl: `${baseUrl}/payment-result?orderId=${merchantTransId}&paymentType=${scenario.type}&amount=${orderSummary.total}&currency=${country.currency}`,
         webhookUrl: `${baseUrl}/api/v1/payment/webhook`,
       };
 
@@ -443,9 +443,9 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ country, scenario }) => {
                     environment={scenario.environment}
                     onPaymentCompleted={(params) => {
                       console.log('Payment completed:', params);
-                      // Drop-in支付完成后跳转到结果页面，使用预生成的订单ID
+                      // Drop-in支付完成后跳转到结果页面，使用预生成的订单ID并传递金额信息
                       const merchantTransId = currentOrderId || result.merchantTransId || generateMerchantTransId();
-                      navigate(`/payment-result?orderId=${merchantTransId}&paymentType=dropin`);
+                      navigate(`/payment-result?orderId=${merchantTransId}&paymentType=dropin&amount=${orderSummary.total}&currency=${country.currency}`);
                     }}
                     onPaymentFailed={async (params) => {
                       console.log('Payment failed:', params);
@@ -456,18 +456,44 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ country, scenario }) => {
                           errorMessage.toLowerCase().includes('订单已支付') ||
                           errorMessage.toLowerCase().includes('already paid') ||
                           errorMessage.toLowerCase().includes('已经支付完成')) {
-                        console.log('检测到订单重复错误，重置状态让用户手动重新开始');
+                        console.log('检测到订单重复错误，生成新订单ID并重新初始化支付');
                         
-                        // 重置状态，让用户手动重新开始（防止无限循环）
-                        setResult(null);
-                        setError('检测到订单重复问题。请点击"支付"按钮重新开始新的测试。');
-                        setCurrentStep(0);
-                        setLoading(false);
-                        
-                        // 生成新的订单ID供下次使用
+                        // 生成新的订单ID
                         const newOrderId = generateMerchantTransId();
                         setCurrentOrderId(newOrderId);
-                        console.log('为下次支付生成新订单ID:', newOrderId);
+                        console.log('生成新订单ID:', newOrderId);
+                        
+                        // 完全重置状态并重新创建支付交互
+                        setResult(null);
+                        setError(null);
+                        setCurrentStep(1);
+                        setLoading(true);
+                        
+                        try {
+                          const baseUrl = window.location.origin;
+                          
+                          const paymentRequest: PaymentRequest = {
+                            amount: orderSummary.total,
+                            currency: country.currency,
+                            merchantTransId: newOrderId,
+                            paymentType: scenario.type,
+                            returnUrl: `${baseUrl}/payment-result?orderId=${newOrderId}&paymentType=${scenario.type}&amount=${orderSummary.total}&currency=${country.currency}`,
+                            webhookUrl: `${baseUrl}/api/v1/payment/webhook`,
+                          };
+                          
+                          console.log('使用新订单ID重新创建交互:', newOrderId);
+                          const response = await apiService.createInteraction(paymentRequest);
+                          
+                          console.log('新交互创建成功:', response);
+                          setResult(response);
+                          setCurrentStep(2);
+                        } catch (err: any) {
+                          console.error('重新创建交互失败:', err);
+                          setError('重新创建支付失败: ' + (err.response?.data?.message || err.message));
+                          setCurrentStep(0);
+                        } finally {
+                          setLoading(false);
+                        }
                       } else {
                         setError('Payment failed: ' + errorMessage);
                       }
