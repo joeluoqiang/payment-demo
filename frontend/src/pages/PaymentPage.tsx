@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Card, Form, Input, Button, Row, Col, Typography, Space, Alert, Divider, Tag, Steps } from 'antd';
 import { useTranslation } from 'react-i18next';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { 
   ArrowLeftOutlined, 
   CreditCardOutlined, 
@@ -45,7 +45,6 @@ const mockProducts = [
 const PaymentPage: React.FC<PaymentPageProps> = ({ country, scenario }) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const location = useLocation();
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<any>(null);
@@ -84,21 +83,6 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ country, scenario }) => {
     // 重置表单
     form.resetFields();
   }, [scenario.id]); // 移除form依赖，防止无限循环
-
-  // 额外的重置机制：每次组件挂载或URL变化都强制重置状态
-  useEffect(() => {
-    console.log('PaymentPage组件挂载或URL变化，强制重置所有状态', location.search);
-    // 生成全新的订单ID
-    const freshOrderId = generateMerchantTransId();
-    setCurrentOrderId(freshOrderId);
-    setResult(null);
-    setError(null);
-    setCurrentStep(0);
-    setLoading(false);
-    console.log('URL变化时生成全新订单ID:', freshOrderId);
-    // 重置表单
-    form.resetFields();
-  }, [location.search]); // 监听URL参数变化
 
   // 计算订单总额
   const calculateTotal = () => {
@@ -468,55 +452,7 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ country, scenario }) => {
                     onPaymentFailed={async (params) => {
                       console.log('Payment failed:', params);
                       const errorMessage = params.message || 'Unknown error';
-                      
-                      // 特殊处理"订单已支付"错误
-                      if (errorMessage.toLowerCase().includes('order has been paid') || 
-                          errorMessage.toLowerCase().includes('订单已支付') ||
-                          errorMessage.toLowerCase().includes('already paid') ||
-                          errorMessage.toLowerCase().includes('已经支付完成')) {
-                        console.log('检测到订单重复错误，生成新订单ID并重新初始化支付');
-                        
-                        // 生成新的订单ID
-                        const newOrderId = generateMerchantTransId();
-                        setCurrentOrderId(newOrderId);
-                        console.log('生成新订单ID:', newOrderId);
-                        
-                        // 完全重置状态并重新创建支付交互
-                        setResult(null);
-                        setError(null);
-                        setCurrentStep(1);
-                        setLoading(true);
-                        
-                        try {
-                          const baseUrl = window.location.origin;
-                          
-                          const paymentRequest: PaymentRequest = {
-                            amount: orderSummary.total,
-                            currency: country.currency,
-                            merchantTransId: newOrderId,
-                            paymentType: scenario.type,
-                            returnUrl: `${baseUrl}/payment-result?orderId=${newOrderId}&paymentType=${scenario.type}&amount=${orderSummary.total}&currency=${country.currency}`,
-                            webhookUrl: `${baseUrl}/api/v1/payment/webhook`,
-                          };
-                          
-                          console.log('使用新订单ID重新创建交互:', newOrderId);
-                          const response = await apiService.createInteraction(paymentRequest);
-                          
-                          console.log('新交互创建成功:', response);
-                          console.log('新SessionID:', response.sessionId);
-                          console.log('旧SessionID:', result?.sessionId);
-                          setResult(response);
-                          setCurrentStep(2);
-                        } catch (err: any) {
-                          console.error('重新创建交互失败:', err);
-                          setError('重新创建支付失败: ' + (err.response?.data?.message || err.message));
-                          setCurrentStep(0);
-                        } finally {
-                          setLoading(false);
-                        }
-                      } else {
-                        setError('Payment failed: ' + errorMessage);
-                      }
+                      setError('Payment failed: ' + errorMessage);
                     }}
                     onPaymentCancelled={(params) => {
                       console.log('Payment cancelled:', params);

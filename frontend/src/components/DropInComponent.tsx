@@ -22,6 +22,47 @@ const DropInComponent: React.FC<DropInComponentProps> = ({
   const [error, setError] = React.useState<string | null>(null);
   const [isInitializing, setIsInitializing] = React.useState(false);
   const [useMockComponent, setUseMockComponent] = React.useState(false);
+  const currentSdkInstance = useRef<any>(null); // 保存当前SDK实例的引用
+
+  // 完全销毁SDK实例的函数
+  const destroySdkInstance = React.useCallback(() => {
+    console.log('销毁SDK实例，确保完全清理');
+    
+    // 1. 销毁当前SDK实例
+    if (currentSdkInstance.current) {
+      try {
+        // 尝试调用SDK的销毁方法（如果存在）
+        if (typeof currentSdkInstance.current.destroy === 'function') {
+          currentSdkInstance.current.destroy();
+        }
+        if (typeof currentSdkInstance.current.cleanup === 'function') {
+          currentSdkInstance.current.cleanup();
+        }
+      } catch (err) {
+        console.warn('销毁SDK实例时出现警告:', err);
+      }
+      currentSdkInstance.current = null;
+    }
+    
+    // 2. 清理DOM容器
+    if (containerRef.current) {
+      containerRef.current.innerHTML = '';
+      // 移除所有可能的事件监听器
+      containerRef.current.removeAttribute('id');
+    }
+    
+    // 3. 重置状态
+    setIsInitializing(false);
+    setError(null);
+  }, []);
+  
+  // 组件卸载时确保清理
+  useEffect(() => {
+    return () => {
+      console.log('DropInComponent组件卸载，执行清理');
+      destroySdkInstance();
+    };
+  }, [destroySdkInstance]);
 
   useEffect(() => {
     const loadDropInSDK = () => {
@@ -74,6 +115,9 @@ const DropInComponent: React.FC<DropInComponentProps> = ({
       });
 
       try {
+        // 先销毁之前的SDK实例，确保完全清理
+        destroySdkInstance();
+        
         // 检查不同的SDK名称
         const DropInSDK = (window as any).DropInSDK || (window as any).DropinSDK;
         
@@ -81,13 +125,8 @@ const DropInComponent: React.FC<DropInComponentProps> = ({
           throw new Error('DropInSDK is not available');
         }
 
-        // 清理容器
-        if (containerRef.current) {
-          containerRef.current.innerHTML = '';
-        }
-
-        // 创建一个唯一的容器ID
-        const containerId = 'dropin-container-' + Date.now();
+        // 创建一个唯一的容器ID，确保每次都是全新的
+        const containerId = 'dropin-container-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
         if (containerRef.current) {
           containerRef.current.id = containerId;
         }
@@ -123,7 +162,9 @@ const DropInComponent: React.FC<DropInComponentProps> = ({
         
         console.log('Drop-in SDK config:', config);
         
+        // 创建新的SDK实例并保存引用
         const sdk = new DropInSDK(config);
+        currentSdkInstance.current = sdk;
         
         console.log('Drop-in SDK initialized successfully:', sdk);
         
@@ -133,18 +174,21 @@ const DropInComponent: React.FC<DropInComponentProps> = ({
         setIsInitializing(false);
       }
     }
-  }, [sdkLoaded, sessionId, isInitializing]);
+  }, [sdkLoaded, sessionId, isInitializing, destroySdkInstance]);
 
-  // 当sessionId变化时，重置初始化状态
+  // 当sessionId变化时，完全重置到“第一次初始化”状态
   useEffect(() => {
-    console.log('SessionId changed, resetting initialization state:', sessionId);
-    setIsInitializing(false);
-    setError(null);
-    // 清理容器内容，确保旧的SDK实例不会干扰
-    if (containerRef.current) {
-      containerRef.current.innerHTML = '';
-    }
-  }, [sessionId]);
+    console.log('SessionId changed, completely resetting to first-time state:', sessionId);
+    
+    // 完全销毁之前的SDK实例
+    destroySdkInstance();
+    
+    // 等待一个微任务周期，确保清理完成
+    setTimeout(() => {
+      setIsInitializing(false);
+      setError(null);
+    }, 10);
+  }, [sessionId, destroySdkInstance]);
 
   // 如果需要使用模拟组件
   if (useMockComponent) {
