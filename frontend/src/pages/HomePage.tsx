@@ -211,26 +211,16 @@ const HomePage: React.FC<HomePageProps> = () => {
             
             {config && (
               <div className="status-indicator fade-in-up delay-200">
-                <SafetyOutlined className="status-icon" />
                 <div className="api-mode-display">
-                  <span className="status-text">Live API Mode</span>
-                  <Badge 
-                    status="processing" 
-                    text={config.apiMode || 'Sandbox'}
+                  <span className="api-mode-label">API Mode</span>
+                  <Switch
+                    checked={config.currentEnv === 'production'}
+                    onChange={handleEnvironmentSwitch}
+                    loading={environmentSwitching}
+                    checkedChildren="Production"
+                    unCheckedChildren="Sandbox"
+                    className="api-mode-switch"
                   />
-                  
-                  {/* 环境切换开关 */}
-                  <div className="env-switch-container">
-                    <SettingOutlined className="setting-icon" />
-                    <span className="switch-label">Production Mode</span>
-                    <Switch
-                      checked={config.currentEnv === 'production'}
-                      onChange={handleEnvironmentSwitch}
-                      loading={environmentSwitching}
-                      checkedChildren="Prod"
-                      unCheckedChildren="Sand"
-                    />
-                  </div>
                 </div>
               </div>
             )}
@@ -279,11 +269,7 @@ const HomePage: React.FC<HomePageProps> = () => {
                         className="scenario-cover"
                         style={{ background: config.bgGradient }}
                       >
-                        <div className="scenario-icon">
-                          {config.icon}
-                        </div>
                         <div className="scenario-image">
-                          {/* 这里可以放实际的场景图片 */}
                           <div className="placeholder-image">
                             {scenario.type === 'linkpay' && <ShoppingCartOutlined style={{ fontSize: 48 }} />}
                             {scenario.type === 'dropin' && <CreditCardOutlined style={{ fontSize: 48 }} />}
@@ -297,17 +283,6 @@ const HomePage: React.FC<HomePageProps> = () => {
                       <Title level={4} className="scenario-title">
                         {t(`scenarios.${scenario.id}`)}
                       </Title>
-                      
-                      <div className="scenario-badges">
-                        <Badge 
-                          color={config.color} 
-                          text={scenario.environment.toUpperCase()}
-                        />
-                        <Badge 
-                          color="geekblue" 
-                          text={scenario.type.toUpperCase()}
-                        />
-                      </div>
                       
                       <ul className="scenario-features">
                         {config.features.map((feature, idx) => (

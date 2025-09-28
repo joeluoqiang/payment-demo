@@ -201,67 +201,60 @@ body {
 }
 
 /* API模式显示和环境切换样式 */
+.status-indicator {
+  display: flex;
+  justify-content: center;
+  margin-top: 24px;
+}
+
 .api-mode-display {
   display: flex;
   align-items: center;
   gap: 16px;
-  flex-wrap: wrap;
-}
-
-.env-switch-container {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 16px;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.15) !important;
+  -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
+  padding: 12px 20px;
+  border-radius: 30px;
   border: 1px solid rgba(255, 255, 255, 0.2);
   transition: all var(--transition-normal);
 }
 
-.env-switch-container:hover {
-  background: rgba(255, 255, 255, 0.15);
+.api-mode-display:hover {
+  background: rgba(255, 255, 255, 0.2) !important;
   border-color: rgba(255, 255, 255, 0.3);
 }
 
-.setting-icon {
-  color: rgba(255, 255, 255, 0.8);
+.api-mode-label {
+  color: rgba(255, 255, 255, 0.95);
   font-size: 14px;
-}
-
-.switch-label {
-  color: rgba(255, 255, 255, 0.9);
-  font-size: 12px;
-  font-weight: 500;
+  font-weight: 600;
   white-space: nowrap;
 }
 
+.api-mode-switch {
+  flex-shrink: 0;
+}
+
 /* 自定义Switch颜色 */
-.env-switch-container .ant-switch {
+.api-mode-switch.ant-switch {
   background-color: rgba(255, 255, 255, 0.2) !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
 }
 
-.env-switch-container .ant-switch-checked {
+.api-mode-switch.ant-switch-checked {
   background-color: var(--success-color) !important;
+  border-color: var(--success-color) !important;
 }
 
-.env-switch-container .ant-switch-loading {
+.api-mode-switch.ant-switch-loading {
   background-color: var(--warning-color) !important;
 }
 
-/* 响应式调整 */
-@media (max-width: 768px) {
-  .api-mode-display {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 12px;
-  }
-  
-  .env-switch-container {
-    align-self: stretch;
-    justify-content: space-between;
-  }
+.api-mode-switch .ant-switch-inner {
+  color: rgba(255, 255, 255, 0.9) !important;
+  font-size: 11px !important;
+  font-weight: 500 !important;
 }
 
 .homepage-container {
@@ -331,32 +324,84 @@ body {
   display: flex;
   align-items: center;
   gap: 12px;
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.15) !important;
+  -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
   padding: 8px 16px;
-  border-radius: 25px;
+  border-radius: 30px;
   border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: all var(--transition-normal);
+  position: relative;
+  overflow: hidden;
+}
+
+.language-selector::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.15);
+  z-index: -1;
+}
+
+.language-selector:hover {
+  background: rgba(255, 255, 255, 0.2) !important;
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.language-selector:hover::before {
+  background: rgba(255, 255, 255, 0.2);
 }
 
 .language-icon {
-  color: white;
-  font-size: 18px;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 16px;
+  flex-shrink: 0;
+  z-index: 1;
 }
 
 .country-selector {
   display: flex;
   align-items: center;
   gap: 12px;
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.15) !important;
+  -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
   padding: 8px 16px;
-  border-radius: 25px;
+  border-radius: 30px;
   border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: all var(--transition-normal);
+  position: relative;
+  overflow: hidden;
+}
+
+.country-selector::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.15);
+  z-index: -1;
+}
+
+.country-selector:hover {
+  background: rgba(255, 255, 255, 0.2) !important;
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.country-selector:hover::before {
+  background: rgba(255, 255, 255, 0.2);
 }
 
 .country-icon {
-  color: white;
-  font-size: 18px;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 16px;
+  flex-shrink: 0;
+  z-index: 1;
 }
 
 /* 支付页面样式 */
@@ -500,26 +545,7 @@ body {
   line-height: 1.6;
 }
 
-.status-indicator {
-  display: inline-flex;
-  align-items: center;
-  gap: 12px;
-  background: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(10px);
-  padding: 12px 24px;
-  border-radius: 25px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-.status-icon {
-  color: #52c41a;
-  font-size: 18px;
-}
-
-.status-text {
-  color: white;
-  font-weight: 600;
-}
+/* 移除旧的状态指示器样式，使用新的API模式样式 */
 
 .error-container {
   max-width: 800px;
@@ -549,15 +575,6 @@ body {
   overflow: hidden;
 }
 
-.scenario-icon {
-  position: absolute;
-  top: 16px;
-  right: 16px;
-  color: white;
-  font-size: 24px;
-  z-index: 2;
-}
-
 .scenario-image {
   width: 100%;
   height: 100%;
@@ -580,13 +597,6 @@ body {
   font-size: 1.1rem !important;
   font-weight: 600 !important;
   color: var(--gray-800) !important;
-}
-
-.scenario-badges {
-  margin-bottom: 16px;
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
 }
 
 .scenario-features {
@@ -612,23 +622,192 @@ body {
   flex-shrink: 0;
 }
 
-/* Ant Design 覆盖样式 */
+/* Ant Design 选择器样式修复 - 针对Safari优化 */
+.language-selector .ant-select,
+.country-selector .ant-select {
+  width: auto;
+  min-width: 120px;
+  z-index: 2;
+  position: relative;
+}
+
 .country-select .ant-select-selector,
 .language-select .ant-select-selector {
   background: transparent !important;
   border: none !important;
-  color: white !important;
-  font-weight: 500;
+  color: rgba(255, 255, 255, 0.95) !important;
+  font-weight: 500 !important;
+  padding: 0 !important;
+  min-height: auto !important;
+  height: auto !important;
+  box-shadow: none !important;
+  -webkit-box-shadow: none !important;
+  outline: none !important;
+}
+
+.country-select .ant-select-selection-item,
+.language-select .ant-select-selection-item {
+  color: rgba(255, 255, 255, 0.95) !important;
+  font-size: 14px !important;
+  line-height: 1.4 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  background: transparent !important;
 }
 
 .country-select .ant-select-arrow,
 .language-select .ant-select-arrow {
-  color: white;
+  color: rgba(255, 255, 255, 0.8) !important;
+  font-size: 12px !important;
 }
 
-.language-select .ant-select-selection-item,
-.country-select .ant-select-selection-item {
-  color: white !important;
+/* 确保选择器内容在Safari中正确显示 */
+.language-select .ant-select-selection-item .ant-space,
+.country-select .ant-select-selection-item .ant-space {
+  color: rgba(255, 255, 255, 0.95) !important;
+}
+
+.language-select .ant-select-selection-item .ant-space .ant-space-item,
+.country-select .ant-select-selection-item .ant-space .ant-space-item {
+  color: rgba(255, 255, 255, 0.95) !important;
+}
+
+/* 修复Safari下拉框背景问题 */
+.ant-select-dropdown {
+  -webkit-backdrop-filter: blur(10px) !important;
+  backdrop-filter: blur(10px) !important;
+  background: rgba(255, 255, 255, 0.95) !important;
+  border: 1px solid rgba(0, 0, 0, 0.1) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1) !important;
+}
+
+.ant-select-item {
+  color: var(--gray-800) !important;
+  background: transparent !important;
+}
+
+.ant-select-item:hover {
+  background: rgba(2, 117, 221, 0.1) !important;
+}
+
+/* Safari 特殊优化 - 完全重写的解决方案 */
+.language-selector,
+.country-selector {
+  /* 多层背景确保Safari兼容性 */
+  background: rgba(255, 255, 255, 0.15) !important;
+  background-color: rgba(255, 255, 255, 0.15) !important;
+  -webkit-background: rgba(255, 255, 255, 0.15) !important;
+  -webkit-background-color: rgba(255, 255, 255, 0.15) !important;
+  
+  /* 背景混合模式确保不透明 */
+  background-blend-mode: normal !important;
+  -webkit-background-blend-mode: normal !important;
+  
+  /* 毛玻璃效果 */
+  -webkit-backdrop-filter: blur(10px) !important;
+  backdrop-filter: blur(10px) !important;
+  
+  /* Safari 硬件加速 */
+  -webkit-transform: translateZ(0) !important;
+  transform: translateZ(0) !important;
+  will-change: transform !important;
+  
+  /* 强制渲染层 */
+  -webkit-backface-visibility: hidden !important;
+  backface-visibility: hidden !important;
+  
+  /* 确保不透明度 */
+  opacity: 1 !important;
+  
+  /* 移除默认样式 */
+  -webkit-appearance: none !important;
+  appearance: none !important;
+}
+
+/* 使用伪元素作为额外背景层 */
+.language-selector::before,
+.country-selector::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.15) !important;
+  -webkit-backdrop-filter: blur(10px) !important;
+  backdrop-filter: blur(10px) !important;
+  z-index: -1;
+  border-radius: inherit;
+}
+
+/* 确保所有Ant Design选择器样式被覆盖 */
+.header-controls .ant-select-single:not(.ant-select-customize-input) .ant-select-selector {
+  background: transparent !important;
+  border: none !important;
+  color: rgba(255, 255, 255, 0.95) !important;
+  box-shadow: none !important;
+  -webkit-box-shadow: none !important;
+}
+
+.header-controls .ant-select-single .ant-select-selection-search-input {
+  color: rgba(255, 255, 255, 0.95) !important;
+}
+
+.header-controls .ant-select-single .ant-select-selection-placeholder {
+  color: rgba(255, 255, 255, 0.7) !important;
+}
+
+/* 强制所有子元素透明背景 */
+.language-selector .ant-select,
+.country-selector .ant-select,
+.language-selector .ant-select-selector,
+.country-selector .ant-select-selector {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  -webkit-box-shadow: none !important;
+}
+
+/* 强制文本颜色 */
+.language-selector *,
+.country-selector * {
+  color: rgba(255, 255, 255, 0.95) !important;
+}
+
+.language-selector .ant-select-selection-item,
+.country-selector .ant-select-selection-item {
+  background: transparent !important;
+  border: none !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+/* 确保选择器的z-index正确 */
+.language-selector .ant-select,
+.country-selector .ant-select {
+  z-index: 10;
+}
+
+/* 针对WebKit的特殊处理 */
+@media screen and (-webkit-min-device-pixel-ratio: 0) {
+  .language-selector,
+  .country-selector {
+    background: rgba(255, 255, 255, 0.15) !important;
+    -webkit-backdrop-filter: blur(10px) !important;
+  }
+}
+
+/* 最终兜底方案 */
+.language-selector,
+.country-selector {
+  background-image: none !important;
+  background-attachment: initial !important;
+  background-size: initial !important;
+  background-repeat: initial !important;
+  background-position: initial !important;
+  background-origin: initial !important;
+  background-clip: initial !important;
 }
 
 .scenario-card {
@@ -805,11 +984,31 @@ body {
     font-size: 14px !important;
   }
 }
+/* 响应式调整 */
 @media (max-width: 768px) {
   .header-content {
     padding: 0 16px;
     flex-direction: column;
     gap: 16px;
+  }
+  
+  .header-controls {
+    gap: 12px;
+  }
+  
+  .language-selector,
+  .country-selector {
+    padding: 6px 12px;
+    font-size: 13px;
+  }
+  
+  .api-mode-display {
+    gap: 12px;
+    padding: 10px 16px;
+  }
+  
+  .api-mode-label {
+    font-size: 13px;
   }
   
   .main-content {
