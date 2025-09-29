@@ -365,36 +365,20 @@ body {
 .country-selector {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 16px;
   background: rgba(255, 255, 255, 0.15) !important;
   -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
-  padding: 8px 16px;
+  padding: 12px 20px;
   border-radius: 30px;
   border: 1px solid rgba(255, 255, 255, 0.2);
   transition: all var(--transition-normal);
   position: relative;
-  overflow: hidden;
-}
-
-.country-selector::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(255, 255, 255, 0.15);
-  z-index: -1;
 }
 
 .country-selector:hover {
   background: rgba(255, 255, 255, 0.2) !important;
   border-color: rgba(255, 255, 255, 0.3);
-}
-
-.country-selector:hover::before {
-  background: rgba(255, 255, 255, 0.2);
 }
 
 .country-icon {
@@ -688,6 +672,20 @@ body {
   min-width: 250px !important; /* 国家选择器需要更宽 */
 }
 
+/* 确保下拉菜单居中对齐 */
+.country-selector .ant-select {
+  position: static !important;
+}
+
+.country-selector .ant-select .ant-select-selector {
+  text-align: center !important;
+}
+
+/* 下拉菜单位置调整 */
+.country-select.ant-select .ant-select-dropdown {
+  transform-origin: center top !important;
+}
+
 .ant-select-item {
   color: var(--gray-800) !important;
   background: transparent !important;
@@ -709,154 +707,69 @@ body {
   margin-left: auto !important;
 }
 
-/* Safari 特殊优化 - 完全重写的解决方案 */
-.language-selector,
+/* 国家选择器样式，完全参考API Mode的成功样式 */
 .country-selector {
-  /* 多层背景确保Safari兼容性 */
+  display: flex;
+  align-items: center;
+  gap: 16px;
   background: rgba(255, 255, 255, 0.15) !important;
-  background-color: rgba(255, 255, 255, 0.15) !important;
-  -webkit-background: rgba(255, 255, 255, 0.15) !important;
-  -webkit-background-color: rgba(255, 255, 255, 0.15) !important;
-  
-  /* 背景混合模式确保不透明 */
-  background-blend-mode: normal !important;
-  -webkit-background-blend-mode: normal !important;
-  
-  /* 毛玻璃效果 */
-  -webkit-backdrop-filter: blur(10px) !important;
-  backdrop-filter: blur(10px) !important;
-  
-  /* Safari 硬件加速 */
-  -webkit-transform: translateZ(0) !important;
-  transform: translateZ(0) !important;
-  will-change: transform !important;
-  
-  /* 强制渲染层 */
-  -webkit-backface-visibility: hidden !important;
-  backface-visibility: hidden !important;
-  
-  /* 确保不透明度 */
-  opacity: 1 !important;
-  
-  /* 移除默认样式 */
-  -webkit-appearance: none !important;
-  appearance: none !important;
-  
-  /* Safari特殊处理 - 强制背景不透明 */
-  background-image: linear-gradient(rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.15)) !important;
-  -webkit-background-image: linear-gradient(rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.15)) !important;
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  padding: 12px 20px;
+  border-radius: 30px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: all var(--transition-normal);
+  position: relative;
 }
 
-/* 使用伪元素作为额外背景层 */
-.language-selector::before,
-.country-selector::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(255, 255, 255, 0.15) !important;
-  -webkit-backdrop-filter: blur(10px) !important;
-  backdrop-filter: blur(10px) !important;
-  z-index: -1;
-  border-radius: inherit;
+.country-selector:hover {
+  background: rgba(255, 255, 255, 0.2) !important;
+  border-color: rgba(255, 255, 255, 0.3);
 }
 
-/* Safari WebKit 特定修复 */
-@supports (-webkit-backdrop-filter: blur(10px)) {
-  .language-selector,
-  .country-selector {
-    background: rgba(255, 255, 255, 0.15) !important;
-    -webkit-backdrop-filter: blur(10px) !important;
-    backdrop-filter: blur(10px) !important;
-    /* 强制Safari使用指定背景 */
-    background-clip: padding-box !important;
-    -webkit-background-clip: padding-box !important;
-  }
+.country-icon {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 16px;
+  flex-shrink: 0;
+  z-index: 1;
 }
 
-/* 针对Safari的最强兜底方案 */
-@media screen and (-webkit-min-device-pixel-ratio: 0) {
-  .language-selector,
-  .country-selector {
-    background: rgba(255, 255, 255, 0.15) !important;
-    -webkit-backdrop-filter: blur(10px) !important;
-    backdrop-filter: blur(10px) !important;
-    /* Safari强制渲染 */
-    -webkit-transform: translate3d(0,0,0) !important;
-    transform: translate3d(0,0,0) !important;
-  }
+/* 国家选择器内部样式 */
+.country-selector .ant-select {
+  width: auto;
+  min-width: 120px;
+  z-index: 2;
+  position: relative;
 }
 
-/* 针对WebKit的特殊处理 */
-@media screen and (-webkit-min-device-pixel-ratio: 0) {
-  .language-selector,
-  .country-selector {
-    background: rgba(255, 255, 255, 0.15) !important;
-    -webkit-backdrop-filter: blur(10px) !important;
-  }
-}
-
-/* 最终兜底方案 */
-.language-selector,
-.country-selector {
-  background-image: none !important;
-  background-attachment: initial !important;
-  background-size: initial !important;
-  background-repeat: initial !important;
-  background-position: initial !important;
-  background-origin: initial !important;
-  background-clip: initial !important;
-}
-
-/* 确保所有Ant Design选择器样式被覆盖 */
-.header-controls .ant-select-single:not(.ant-select-customize-input) .ant-select-selector {
-  background: transparent !important;
-  border: none !important;
-  color: rgba(255, 255, 255, 0.95) !important;
-  box-shadow: none !important;
-  -webkit-box-shadow: none !important;
-}
-
-.header-controls .ant-select-single .ant-select-selection-search-input {
-  color: rgba(255, 255, 255, 0.95) !important;
-}
-
-.header-controls .ant-select-single .ant-select-selection-placeholder {
-  color: rgba(255, 255, 255, 0.7) !important;
-}
-
-/* 强制所有子元素透明背景 */
-.language-selector .ant-select,
-.country-selector .ant-select,
-.language-selector .ant-select-selector,
 .country-selector .ant-select-selector {
   background: transparent !important;
   border: none !important;
+  color: rgba(255, 255, 255, 0.95) !important;
+  font-weight: 500 !important;
+  padding: 0 !important;
+  min-height: auto !important;
+  height: auto !important;
   box-shadow: none !important;
   -webkit-box-shadow: none !important;
+  outline: none !important;
 }
 
-/* 强制文本颜色 */
-.language-selector *,
-.country-selector * {
-  color: rgba(255, 255, 255, 0.95) !important;
-}
-
-.language-selector .ant-select-selection-item,
 .country-selector .ant-select-selection-item {
+  color: rgba(255, 255, 255, 0.95) !important;
+  font-size: 14px !important;
+  line-height: 1.4 !important;
+  padding: 0 !important;
+  margin: 0 !important;
   background: transparent !important;
-  border: none !important;
-  opacity: 1 !important;
-  visibility: visible !important;
 }
 
-/* 确保选择器的z-index正确 */
-.language-selector .ant-select,
-.country-selector .ant-select {
-  z-index: 10;
+.country-selector .ant-select-arrow {
+  color: rgba(255, 255, 255, 0.8) !important;
+  font-size: 12px !important;
 }
+
+
 
 .scenario-card {
   height: 100%;
