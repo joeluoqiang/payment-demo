@@ -125,6 +125,7 @@ const HomePage: React.FC<HomePageProps> = () => {
             {/* 国家选择器 */}
             <div className="country-selector" style={{ 
               background: 'rgba(255, 255, 255, 0.15)',
+              backgroundColor: 'rgba(255, 255, 255, 0.15)',
               WebkitBackdropFilter: 'blur(10px)',
               backdropFilter: 'blur(10px)',
               border: '1px solid rgba(255, 255, 255, 0.2)',
@@ -132,8 +133,9 @@ const HomePage: React.FC<HomePageProps> = () => {
               padding: '12px 20px',
               display: 'flex',
               alignItems: 'center',
-              gap: '16px'
-            }}>
+              gap: '16px',
+              position: 'relative'
+            } as React.CSSProperties}>
               <GlobalOutlined className="country-icon" />
               <Select
                 className="country-select"
@@ -142,12 +144,23 @@ const HomePage: React.FC<HomePageProps> = () => {
                 suffixIcon={null}
                 bordered={false}
                 dropdownClassName="country-dropdown"
-                getPopupContainer={(triggerNode) => triggerNode.parentNode as HTMLElement}
+                getPopupContainer={(triggerNode) => {
+                  // 确保下拉菜单正确渲染在父容器中
+                  return triggerNode.parentElement || document.body;
+                }}
+                dropdownAlign={{
+                  points: ['tc', 'bc'],
+                  offset: [0, 8],
+                  targetOffset: [0, 0]
+                }}
                 style={{
                   background: 'transparent',
+                  backgroundColor: 'transparent',
                   border: 'none',
-                  color: 'rgba(255, 255, 255, 0.95)'
-                }}
+                  color: 'rgba(255, 255, 255, 0.95)',
+                  width: '100%',
+                  maxWidth: '120px'
+                } as React.CSSProperties}
               >
                 {state.countries.map((country: Country) => (
                   <Option key={country.code} value={country.code}>
