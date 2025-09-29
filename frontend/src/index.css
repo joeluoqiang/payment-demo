@@ -680,15 +680,33 @@ body {
   border: 1px solid rgba(0, 0, 0, 0.1) !important;
   border-radius: 12px !important;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1) !important;
+  min-width: 200px !important; /* 增加最小宽度 */
+}
+
+/* 国家选择器下拉框特别样式 */
+.country-select .ant-select-dropdown {
+  min-width: 250px !important; /* 国家选择器需要更宽 */
 }
 
 .ant-select-item {
   color: var(--gray-800) !important;
   background: transparent !important;
+  padding: 8px 12px !important; /* 增加内边距让选项更舒适 */
 }
 
 .ant-select-item:hover {
   background: rgba(2, 117, 221, 0.1) !important;
+}
+
+/* 选择器选项内容样式优化 */
+.ant-select-item .ant-space {
+  width: 100% !important;
+  justify-content: space-between !important;
+}
+
+/* Badge样式优化 */
+.ant-select-item .ant-badge {
+  margin-left: auto !important;
 }
 
 /* Safari 特殊优化 - 完全重写的解决方案 */
@@ -723,6 +741,10 @@ body {
   /* 移除默认样式 */
   -webkit-appearance: none !important;
   appearance: none !important;
+  
+  /* Safari特殊处理 - 强制背景不透明 */
+  background-image: linear-gradient(rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.15)) !important;
+  -webkit-background-image: linear-gradient(rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.15)) !important;
 }
 
 /* 使用伪元素作为额外背景层 */
@@ -739,6 +761,53 @@ body {
   backdrop-filter: blur(10px) !important;
   z-index: -1;
   border-radius: inherit;
+}
+
+/* Safari WebKit 特定修复 */
+@supports (-webkit-backdrop-filter: blur(10px)) {
+  .language-selector,
+  .country-selector {
+    background: rgba(255, 255, 255, 0.15) !important;
+    -webkit-backdrop-filter: blur(10px) !important;
+    backdrop-filter: blur(10px) !important;
+    /* 强制Safari使用指定背景 */
+    background-clip: padding-box !important;
+    -webkit-background-clip: padding-box !important;
+  }
+}
+
+/* 针对Safari的最强兜底方案 */
+@media screen and (-webkit-min-device-pixel-ratio: 0) {
+  .language-selector,
+  .country-selector {
+    background: rgba(255, 255, 255, 0.15) !important;
+    -webkit-backdrop-filter: blur(10px) !important;
+    backdrop-filter: blur(10px) !important;
+    /* Safari强制渲染 */
+    -webkit-transform: translate3d(0,0,0) !important;
+    transform: translate3d(0,0,0) !important;
+  }
+}
+
+/* 针对WebKit的特殊处理 */
+@media screen and (-webkit-min-device-pixel-ratio: 0) {
+  .language-selector,
+  .country-selector {
+    background: rgba(255, 255, 255, 0.15) !important;
+    -webkit-backdrop-filter: blur(10px) !important;
+  }
+}
+
+/* 最终兜底方案 */
+.language-selector,
+.country-selector {
+  background-image: none !important;
+  background-attachment: initial !important;
+  background-size: initial !important;
+  background-repeat: initial !important;
+  background-position: initial !important;
+  background-origin: initial !important;
+  background-clip: initial !important;
 }
 
 /* 确保所有Ant Design选择器样式被覆盖 */
@@ -787,27 +856,6 @@ body {
 .language-selector .ant-select,
 .country-selector .ant-select {
   z-index: 10;
-}
-
-/* 针对WebKit的特殊处理 */
-@media screen and (-webkit-min-device-pixel-ratio: 0) {
-  .language-selector,
-  .country-selector {
-    background: rgba(255, 255, 255, 0.15) !important;
-    -webkit-backdrop-filter: blur(10px) !important;
-  }
-}
-
-/* 最终兜底方案 */
-.language-selector,
-.country-selector {
-  background-image: none !important;
-  background-attachment: initial !important;
-  background-size: initial !important;
-  background-repeat: initial !important;
-  background-position: initial !important;
-  background-origin: initial !important;
-  background-clip: initial !important;
 }
 
 .scenario-card {
