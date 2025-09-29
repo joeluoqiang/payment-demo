@@ -123,7 +123,17 @@ const HomePage: React.FC<HomePageProps> = () => {
           
           <div className="header-controls">
             {/* 国家选择器 */}
-            <div className="country-selector">
+            <div className="country-selector" style={{ 
+              background: 'rgba(255, 255, 255, 0.15)',
+              WebkitBackdropFilter: 'blur(10px)',
+              backdropFilter: 'blur(10px)',
+              border: '1px solid rgba(255, 255, 255, 0.2)',
+              borderRadius: '30px',
+              padding: '12px 20px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '16px'
+            }}>
               <GlobalOutlined className="country-icon" />
               <Select
                 className="country-select"
@@ -131,6 +141,13 @@ const HomePage: React.FC<HomePageProps> = () => {
                 onChange={handleCountryChange}
                 suffixIcon={null}
                 bordered={false}
+                dropdownClassName="country-dropdown"
+                getPopupContainer={(triggerNode) => triggerNode.parentNode as HTMLElement}
+                style={{
+                  background: 'transparent',
+                  border: 'none',
+                  color: 'rgba(255, 255, 255, 0.95)'
+                }}
               >
                 {state.countries.map((country: Country) => (
                   <Option key={country.code} value={country.code}>

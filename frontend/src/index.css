@@ -606,25 +606,26 @@ body {
   flex-shrink: 0;
 }
 
-/* Ant Design 选择器样式修复 - 针对Safari优化 */
-.language-selector .ant-select,
-.country-selector .ant-select {
-  width: auto;
-  min-width: 140px;
-  z-index: 3;
-  position: relative;
+/* 彻底重写选择器样式以确保Safari兼容性 */
+.country-select {
   background: transparent !important;
+  background-color: transparent !important;
+  -webkit-background-color: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
 }
 
-.country-select .ant-select-selector,
-.language-select .ant-select-selector {
+/* 使用最高优先级选择器 */
+.country-selector .country-select.ant-select .ant-select-selector {
   background: transparent !important;
-  -webkit-background-color: transparent !important;
   background-color: transparent !important;
+  -webkit-background-color: transparent !important;
   border: none !important;
   color: rgba(255, 255, 255, 0.95) !important;
   font-weight: 500 !important;
   padding: 0 !important;
+  margin: 0 !important;
   min-height: auto !important;
   height: auto !important;
   box-shadow: none !important;
@@ -632,52 +633,58 @@ body {
   outline: none !important;
 }
 
-.country-select .ant-select-selection-item,
-.language-select .ant-select-selection-item {
+.country-selector .country-select.ant-select .ant-select-selection-item {
   color: rgba(255, 255, 255, 0.95) !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  -webkit-background-color: transparent !important;
   font-size: 14px !important;
   line-height: 1.4 !important;
   padding: 0 !important;
   margin: 0 !important;
-  background: transparent !important;
-  -webkit-background-color: transparent !important;
-  background-color: transparent !important;
 }
 
-.country-select .ant-select-arrow,
-.language-select .ant-select-arrow {
+.country-selector .country-select.ant-select .ant-select-arrow {
   color: rgba(255, 255, 255, 0.8) !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  -webkit-background-color: transparent !important;
   font-size: 12px !important;
-  background: transparent !important;
 }
 
-/* 确保选择器内容在Safari中正确显示 */
-.language-select .ant-select-selection-item .ant-space,
-.country-select .ant-select-selection-item .ant-space {
+/* 确保Space组件内容透明 */
+.country-selector .country-select .ant-select-selection-item .ant-space {
+  background: transparent !important;
+  background-color: transparent !important;
+  -webkit-background-color: transparent !important;
+}
+
+.country-selector .country-select .ant-select-selection-item .ant-space .ant-space-item {
   color: rgba(255, 255, 255, 0.95) !important;
   background: transparent !important;
+  background-color: transparent !important;
+  -webkit-background-color: transparent !important;
 }
 
-.language-select .ant-select-selection-item .ant-space .ant-space-item,
-.country-select .ant-select-selection-item .ant-space .ant-space-item {
-  color: rgba(255, 255, 255, 0.95) !important;
-  background: transparent !important;
-}
-
-/* Safari专门的样式覆盖 - 强制清除所有白色背景 */
-@supports (-webkit-backdrop-filter: blur(10px)) {
+/* 更强的Safari特定覆盖 */
+@media screen and (-webkit-min-device-pixel-ratio: 0) {
   .country-selector .ant-select,
   .country-selector .ant-select *,
-  .country-selector .ant-select-selector,
-  .country-selector .ant-select-selection-item,
-  .country-selector .ant-select-arrow {
+  .country-selector .country-select,
+  .country-selector .country-select * {
     background: transparent !important;
-    -webkit-background-color: transparent !important;
     background-color: transparent !important;
+    -webkit-background-color: transparent !important;
+  }
+  
+  .country-selector {
+    background: rgba(255, 255, 255, 0.15) !important;
+    background-color: rgba(255, 255, 255, 0.15) !important;
+    -webkit-background-color: rgba(255, 255, 255, 0.15) !important;
   }
 }
 
-/* 修复Safari下拉框背景问题 */
+/* 下拉菜单样式优化 */
 .ant-select-dropdown {
   -webkit-backdrop-filter: blur(10px) !important;
   backdrop-filter: blur(10px) !important;
@@ -688,36 +695,44 @@ body {
   min-width: 200px !important;
 }
 
-/* 国家选择器下拉框特别样式 */
-.country-select .ant-select-dropdown {
-  min-width: 280px !important; /* 增加宽度以舒适显示国家和币种信息 */
+/* 国家选择器下拉框优化 */
+.country-dropdown {
+  min-width: 300px !important; /* 增加宽度以舒适显示国家和币种信息 */
   margin-top: 8px !important;
 }
 
-/* 确保下拉菜单居中对齐 - 相对于整个控件 */
+/* 国家选择器布局优化 */
 .country-selector {
-  justify-content: center;
+  justify-content: space-between !important;
+  align-items: center !important;
+  width: auto !important;
+  min-width: 180px !important;
+  position: relative !important;
 }
 
 .country-selector .ant-select {
-  position: static !important;
-  flex: 1;
-  display: flex;
-  justify-content: center;
+  flex: 1 !important;
+  text-align: center !important;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
 }
 
 .country-selector .ant-select .ant-select-selector {
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
   text-align: center !important;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  width: 100% !important;
 }
 
-/* 下拉菜单位置调整 - 确保在整个控件正下方居中 */
-.country-select.ant-select .ant-select-dropdown {
-  transform-origin: center top !important;
+/* 下拉菜单定位修复 */
+.country-selector .ant-select-dropdown {
+  position: absolute !important;
+  top: 100% !important;
   left: 50% !important;
   transform: translateX(-50%) !important;
+  margin-top: 8px !important;
 }
 
 .ant-select-item {
@@ -741,79 +756,67 @@ body {
   margin-left: auto !important;
 }
 
-/* 国家选择器样式 - 完全对标API Mode显示样式 */
+/* 国家选择器样式 - 完全重写以匹配API Mode */
 .country-selector {
-  display: flex;
-  align-items: center;
-  gap: 16px;
+  display: flex !important;
+  align-items: center !important;
+  gap: 16px !important;
+  /* 直接复制API Mode的成功样式 */
   background: rgba(255, 255, 255, 0.15) !important;
   -webkit-backdrop-filter: blur(10px) !important;
   backdrop-filter: blur(10px) !important;
-  padding: 12px 20px;
-  border-radius: 30px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  transition: all var(--transition-normal);
-  position: relative;
-  /* Safari专门优化 */
+  padding: 12px 20px !important;
+  border-radius: 30px !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  transition: all var(--transition-normal) !important;
+  position: relative !important;
+  /* 强制覆盖任何可能的背景 */
+  background-color: rgba(255, 255, 255, 0.15) !important;
   -webkit-background-color: rgba(255, 255, 255, 0.15) !important;
-  isolation: isolate;
-}
-
-.country-selector::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(255, 255, 255, 0.15);
-  border-radius: inherit;
-  z-index: -1;
-  /* Safari fallback */
-  -webkit-backdrop-filter: blur(10px);
-  backdrop-filter: blur(10px);
 }
 
 .country-selector:hover {
   background: rgba(255, 255, 255, 0.2) !important;
-  border-color: rgba(255, 255, 255, 0.3);
+  border-color: rgba(255, 255, 255, 0.3) !important;
+  background-color: rgba(255, 255, 255, 0.2) !important;
   -webkit-background-color: rgba(255, 255, 255, 0.2) !important;
 }
 
-.country-selector:hover::before {
-  background: rgba(255, 255, 255, 0.2);
-}
-
 .country-icon {
-  color: rgba(255, 255, 255, 0.9);
-  font-size: 16px;
-  flex-shrink: 0;
-  z-index: 2;
-  position: relative;
+  color: rgba(255, 255, 255, 0.9) !important;
+  font-size: 16px !important;
+  flex-shrink: 0 !important;
+  z-index: 1 !important;
 }
 
-/* 国家选择器内部 - 清除所有可能的白色背景 */
+/* 彻底重写国家选择器内部样式 - 使用最高优先级 */
 .country-selector .ant-select {
-  width: auto;
-  min-width: 140px;
-  z-index: 3;
-  position: relative;
-  background: transparent !important;
-}
-
-.country-selector .ant-select * {
-  background: transparent !important;
-  -webkit-background-color: transparent !important;
-}
-
-.country-selector .ant-select-selector {
-  background: transparent !important;
-  -webkit-background-color: transparent !important;
+  background: none !important;
   background-color: transparent !important;
+  -webkit-background-color: transparent !important;
+  width: auto !important;
+  min-width: 140px !important;
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+/* 使用属性选择器确保最高优先级 */
+.country-selector .ant-select[class*="ant-select"] {
+  background: transparent !important;
+  background-color: transparent !important;
+  -webkit-background-color: transparent !important;
+}
+
+.country-selector .ant-select .ant-select-selector {
+  background: transparent !important;
+  background-color: transparent !important;
+  -webkit-background-color: transparent !important;
   border: none !important;
   color: rgba(255, 255, 255, 0.95) !important;
   font-weight: 500 !important;
   padding: 0 !important;
+  margin: 0 !important;
   min-height: auto !important;
   height: auto !important;
   box-shadow: none !important;
@@ -821,21 +824,42 @@ body {
   outline: none !important;
 }
 
-.country-selector .ant-select-selection-item {
+.country-selector .ant-select .ant-select-selection-item {
   color: rgba(255, 255, 255, 0.95) !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  -webkit-background-color: transparent !important;
   font-size: 14px !important;
   line-height: 1.4 !important;
   padding: 0 !important;
   margin: 0 !important;
-  background: transparent !important;
-  -webkit-background-color: transparent !important;
-  background-color: transparent !important;
 }
 
-.country-selector .ant-select-arrow {
+.country-selector .ant-select .ant-select-arrow {
   color: rgba(255, 255, 255, 0.8) !important;
-  font-size: 12px !important;
   background: transparent !important;
+  background-color: transparent !important;
+  font-size: 12px !important;
+}
+
+/* Safari专用覆盖 - 使用更高的特异性 */
+@supports (-webkit-appearance: none) {
+  .country-selector,
+  .country-selector *,
+  .country-selector .ant-select,
+  .country-selector .ant-select *,
+  .country-selector .ant-select .ant-select-selector,
+  .country-selector .ant-select .ant-select-selection-item {
+    background: transparent !important;
+    background-color: transparent !important;
+    -webkit-background-color: transparent !important;
+  }
+  
+  .country-selector {
+    background: rgba(255, 255, 255, 0.15) !important;
+    background-color: rgba(255, 255, 255, 0.15) !important;
+    -webkit-background-color: rgba(255, 255, 255, 0.15) !important;
+  }
 }
 
 
