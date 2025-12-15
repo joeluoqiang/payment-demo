@@ -20,6 +20,17 @@ func GenerateIdempotencyKey() string {
 	return fmt.Sprintf("idem_%s_%06d", timestamp, random)
 }
 
+// 生成MsgID
+func GenerateMsgID() string {
+	// 使用随机字符串生成MsgID，类似Postman的格式
+	const chars = "0123456789abcdef"
+	result := make([]byte, 32)
+	for i := range result {
+		result[i] = chars[rand.Intn(len(chars))]
+	}
+	return string(result)
+}
+
 // 验证货币代码
 func IsValidCurrency(currency string) bool {
 	validCurrencies := map[string]bool{

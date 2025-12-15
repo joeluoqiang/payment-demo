@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"crypto/hmac"
 	"crypto/sha256"
+	"crypto/tls"
 	"encoding/hex"
 	"encoding/json"
 	"errors"
@@ -47,9 +48,21 @@ func NewPaymentService() *PaymentService {
 		log.Fatalf("Payment service configuration validation failed: %v", err)
 	}
 
+	// 创建HTTP客户端，根据环境配置SSL验证
+	client := &http.Client{
+		Timeout: 30 * time.Second,
+	}
+
+	// 如果是Sandbox环境，禁用SSL证书验证（处理证书不匹配问题）
+	if cfg.CurrentAPIEnv == config.Sandbox {
+		client.Transport = &http.Transport{
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+		}
+	}
+
 	return &PaymentService{
 		config: cfg,
-		client: &http.Client{Timeout: 30 * time.Second},
+		client: client,
 	}
 }
 
@@ -59,20 +72,30 @@ func (s *PaymentService) CreateInteraction(req *models.PaymentRequest) (*models.
 	// 构建Evonet API请求
 	// 根据Evonet API文档的标准格式
 	evonetReq := map[string]interface{}{
-		"merchantOrderInfo": map[string]interface{}{
-			"merchantOrderID": req.MerchantTransID,
-		},
+		"validTime": 43200, // 12小时有效期
+		"returnUrl": req.ReturnURL, // 使用正确的驼峰命名
+		"webhook":   req.WebhookURL,
 		"transAmount": map[string]interface{}{
 			"currency": req.Currency,
 			"value":    fmt.Sprintf("%.0f", req.Amount),
 		},
-		"returnURL": req.ReturnURL,
-		"webhook":   req.WebhookURL,
+		"merchantOrderInfo": map[string]interface{}{
+			"merchantOrderID":   req.MerchantTransID,
+			"merchantOrderTime": time.Now().Format("2006-01-02T15:04:05+08:00"),
+		},
 	}
 
 	// 如果指定了支付方式，添加到请求中
 	if req.PaymentMethod != "" {
 		evonetReq["merchantOrderInfo"].(map[string]interface{})["enabledPaymentMethod"] = []string{req.PaymentMethod}
+	}
+
+	// 添加基本的交易信息
+	evonetReq["tradeInfo"] = map[string]interface{}{
+		"tradeType":      "Others",
+		"totalQuantity":   1,
+		"goodsName":       "Demo Product",
+		"goodsDescription": "Demo goods description",
 	}
 
 	// 发送请求到Evonet
@@ -352,6 +375,7 @@ func (s *PaymentService) normalizeStatus(status string) string {
 func (s *PaymentService) sendEvonetRequest(method, endpoint string, data interface{}) ([]byte, error) {
 	// 获取当前环境的配置
 	currentConfig := s.config.GetCurrentEvonetConfig()
+	// 使用原始端点，不添加额外前缀
 	url := currentConfig.APIURL + endpoint
 	fmt.Printf("[sendEvonetRequest] %s %s (使用%s环境)\n", method, url, s.config.GetAPIMode())
 
@@ -376,8 +400,12 @@ func (s *PaymentService) sendEvonetRequest(method, endpoint string, data interfa
 	req.Header.Set("DateTime", dateTime)
 	req.Header.Set("KeyID", currentConfig.KeyID)
 	req.Header.Set("SignType", "Key-based")
+	
+	// 生成MsgID
+	msgID := utils.GenerateMsgID()
+	req.Header.Set("MsgID", msgID)
 
-	fmt.Printf("[sendEvonetRequest] Headers - KeyID: %s, DateTime: %s\n", currentConfig.KeyID, dateTime)
+	fmt.Printf("[sendEvonetRequest] Headers - KeyID: %s, DateTime: %s, MsgID: %s\n", currentConfig.KeyID, dateTime, msgID)
 
 	// 生成签名
 	if currentConfig.SignKey != "" {

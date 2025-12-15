@@ -74,10 +74,26 @@ const DropInComponent: React.FC<DropInComponentProps> = ({
       }
 
       console.log('Loading Drop-in SDK...');
+      
+      // 清除所有可能存在的旧脚本（包括本地和线上的）
+      const oldScripts = document.querySelectorAll('script[src*="index.min.js"]');
+      oldScripts.forEach(script => script.remove());
+      
+      // 清除window对象中的旧SDK实例
+      if ((window as any).DropInSDK) {
+        delete (window as any).DropInSDK;
+      }
+      if ((window as any).DropinSDK) {
+        delete (window as any).DropinSDK;
+      }
+      
       const script = document.createElement('script');
-      // 使用本地JS文件
-      script.src = '/index.min.js';
+      // 使用线上JS文件，并添加时间戳作为缓存破坏
+      const sdkUrl = 'https://cdn.jsdelivr.net/npm/cil-dropin-components@latest/dist/index.min.js';
+      script.src = `${sdkUrl}?t=${Date.now()}`;
       script.crossOrigin = 'anonymous';
+      // 添加缓存控制头
+      script.setAttribute('cache-control', 'no-cache, no-store, must-revalidate');
       script.onload = () => {
         console.log('Drop-in SDK loaded successfully');
         // 等待一小段时间确保SDK完全初始化
@@ -200,7 +216,7 @@ const DropInComponent: React.FC<DropInComponentProps> = ({
             <div>
               <div>无法加载官方Drop-in SDK，正在使用模拟组件进行演示</div>
               <div style={{ fontSize: 12, color: '#666', marginTop: 4 }}>
-                SDK URL: /index.min.js
+                SDK URL: https://cdn.jsdelivr.net/npm/cil-dropin-components@latest/dist/index.min.js
               </div>
             </div>
           }
@@ -216,7 +232,7 @@ const DropInComponent: React.FC<DropInComponentProps> = ({
                   setError(null);
                   setSdkLoaded(false);
                   // 清除之前的脚本
-                  const existingScripts = document.querySelectorAll('script[src*="index.min.js"]');
+                  const existingScripts = document.querySelectorAll('script[src*="cil-dropin-components"]');
                   existingScripts.forEach(script => script.remove());
                 }}
                 style={{ marginRight: 8 }}
@@ -227,7 +243,7 @@ const DropInComponent: React.FC<DropInComponentProps> = ({
                 size="small"
                 type="link"
                 onClick={() => {
-                  window.open('/index.min.js', '_blank');
+                  window.open('https://cdn.jsdelivr.net/npm/cil-dropin-components@latest/dist/index.min.js', '_blank');
                 }}
               >
                 检查SDK链接
