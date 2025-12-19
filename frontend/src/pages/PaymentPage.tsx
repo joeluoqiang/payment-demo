@@ -388,7 +388,12 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ country, scenario }) => {
         {/* 主要内容区域 */}
         <Row gutter={[24, 24]}>
           {/* 左侧 - 支付表单 */}
-          <Col xs={24} lg={14}>
+          <Col 
+            xs={24} 
+            lg={14} 
+            order={1} // 移动端默认后显示（处于底部）
+            lgOrder={0} // 大屏设备默认顺序
+          >
             <Space direction="vertical" size="large" style={{ width: '100%' }}>
               {error && (
                 <Alert
@@ -465,7 +470,12 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ country, scenario }) => {
           </Col>
 
           {/* 右侧 - 订单摘要 */}
-          <Col xs={24} lg={10}>
+          <Col 
+            xs={24} 
+            lg={10} 
+            order={0} // 移动端默认先显示（处于顶部）
+            lgOrder={1} // 大屏设备默认顺序
+          >
             {renderOrderSummary()}
           </Col>
         </Row>

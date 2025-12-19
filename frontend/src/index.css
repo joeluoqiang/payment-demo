@@ -906,13 +906,25 @@ body {
   border-color: rgba(255, 255, 255, 0.5) !important;
 }
 
-.steps-card,
+.steps-card {
+  border-radius: 16px !important;
+  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.95) !important;
+}
+
+.order-summary-card {
+  border-radius: 16px !important;
+  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.95) !important;
+  margin-top: 32px !important;
+}
+
 .payment-form-card,
-.order-summary-card,
 .dropin-card {
   border-radius: 16px !important;
   backdrop-filter: blur(10px);
   background: rgba(255, 255, 255, 0.95) !important;
+  margin-top: 32px !important;
 }
 
 .pay-button {
@@ -933,6 +945,7 @@ body {
 .error-alert,
 .result-alert {
   border-radius: 12px !important;
+  margin-top: 32px !important;
 }
 
 /* 支付结果页面样式 */
@@ -1097,6 +1110,40 @@ body {
   .product-image {
     width: 50px;
     height: 50px;
+  }
+  
+  /* 移动端支付页面布局优化 */
+  .payment-page .ant-row {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  /* 确保支付表单在移动端处于页面底部，订单摘要在顶部 */
+  .payment-page .ant-col:first-child {
+    order: 1;
+    margin-top: 0;
+    margin-bottom: 0;
+  }
+  
+  .payment-page .ant-col:last-child {
+    order: 0;
+    margin-bottom: 16px;
+  }
+  
+  /* 支付表单样式优化 */
+  .payment-form-card {
+    margin-top: 24px !important;
+  }
+  
+  /* 确保支付按钮在小屏幕上更突出 */
+  .pay-button {
+    font-size: 18px !important;
+    height: 56px !important;
+  }
+  
+  /* 增加页面底部间距，确保内容不被遮挡 */
+  .payment-container {
+    padding-bottom: 40px;
   }
 }
 

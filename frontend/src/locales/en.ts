@@ -29,11 +29,11 @@ export default {
     TH: 'Thailand',
     SG: 'Singapore',
   },
+  // 支付场景名称
   scenarios: {
-    'uat-ecommerce-linkpay': 'E-commerce LinkPay',
-    'uat-ecommerce-dropin': 'E-commerce Drop-in',
-    'uat-ecommerce-directapi': 'E-commerce Direct API',
-    'prod-ecommerce-linkpay': 'Production LinkPay',
+    'uat-linkpay': 'LinkPay',
+    'uat-dropin': 'Drop-in',
+    'uat-directapi': 'Direct API',
   },
   payment: {
     cardNumber: 'Card Number',

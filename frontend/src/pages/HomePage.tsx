@@ -24,21 +24,21 @@ interface HomePageProps {
 
 // 场景配置
 const scenarioConfigs = {
-  'uat-ecommerce-linkpay': {
+  'uat-linkpay': {
     icon: <ShoppingCartOutlined />,
     color: '#0275DD',
     bgGradient: 'linear-gradient(135deg, #0275DD 0%, #054D8E 100%)',
     image: '/api/placeholder/300/200',
     features: ['One-click payment', 'Mobile optimized', 'Multi-currency']
   },
-  'uat-ecommerce-dropin': {
+  'uat-dropin': {
     icon: <CreditCardOutlined />,
     color: '#4ADAFC',
     bgGradient: 'linear-gradient(135deg, #4ADAFC 0%, #0275DD 100%)',
     image: '/api/placeholder/300/200',
     features: ['Embedded UI', 'Multiple methods', 'Real-time validation']
   },
-  'uat-ecommerce-directapi': {
+  'uat-directapi': {
     icon: <ApiOutlined />,
     color: '#48E5CE',
     bgGradient: 'linear-gradient(135deg, #48E5CE 0%, #4ADAFC 100%)',

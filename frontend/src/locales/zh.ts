@@ -30,10 +30,9 @@ export default {
     SG: '新加坡',
   },
   scenarios: {
-    'uat-ecommerce-linkpay': '电商 LinkPay',
-    'uat-ecommerce-dropin': '电商 Drop-in',
-    'uat-ecommerce-directapi': '电商 Direct API',
-    'prod-ecommerce-linkpay': '生产 LinkPay',
+    'uat-linkpay': 'LinkPay',
+    'uat-dropin': 'Drop-in',
+    'uat-directapi': 'Direct API',
   },
   payment: {
     cardNumber: '卡号',

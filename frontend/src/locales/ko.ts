@@ -30,10 +30,9 @@ export default {
     SG: '싱가포르',
   },
   scenarios: {
-    'uat-ecommerce-linkpay': '전자상거래 LinkPay',
-    'uat-ecommerce-dropin': '전자상거래 Drop-in',
-    'uat-ecommerce-directapi': '전자상거래 Direct API',
-    'prod-ecommerce-linkpay': '프로덕션 LinkPay',
+    'uat-linkpay': 'LinkPay',
+    'uat-dropin': 'Drop-in',
+    'uat-directapi': 'Direct API',
   },
   payment: {
     cardNumber: '카드 번호',

@@ -64,25 +64,25 @@ func getCountries(c *gin.Context) {
 func getScenarios(c *gin.Context) {
 	scenarios := []models.PaymentScenario{
 		{
-			ID:          "uat-ecommerce-linkpay",
-			Name:        "UAT-电商-LinkPay Demo",
+			ID:          "uat-linkpay",
+			Name:        "UAT-LinkPay Demo",
 			Environment: "UAT",
 			Type:        "linkpay",
-			Description: "UAT环境电商场景LinkPay支付演示",
+			Description: "UAT环境LinkPay支付演示",
 		},
 		{
-			ID:          "uat-ecommerce-dropin",
-			Name:        "UAT-电商-Drop-in Demo",
+			ID:          "uat-dropin",
+			Name:        "UAT-Drop-in Demo",
 			Environment: "UAT",
 			Type:        "dropin",
-			Description: "UAT环境电商场景Drop-in支付演示",
+			Description: "UAT环境Drop-in支付演示",
 		},
 		{
-			ID:          "uat-ecommerce-directapi",
-			Name:        "UAT-电商-Direct API Demo",
+			ID:          "uat-directapi",
+			Name:        "UAT-Direct API Demo",
 			Environment: "UAT",
 			Type:        "directapi",
-			Description: "UAT环境电商场景Direct API支付演示",
+			Description: "UAT环境Direct API支付演示",
 		},
 	}
 
