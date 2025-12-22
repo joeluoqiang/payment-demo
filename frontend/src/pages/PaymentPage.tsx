@@ -518,13 +518,11 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ country, scenario }) => {
         {renderPaymentSteps()}
 
         {/* 主要内容区域 */}
-        <Row gutter={[24, 24]}>
+        <Row gutter={[24, 24]} className="payment-row">
           {/* 左侧 - 支付表单 */}
           <Col 
             xs={24} 
             lg={14} 
-            order={1} // 移动端默认后显示（处于底部）
-            lgOrder={0} // 大屏设备默认顺序
           >
             <Space direction="vertical" size="large" style={{ width: '100%' }}>
               {error && (
@@ -605,8 +603,6 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ country, scenario }) => {
           <Col 
             xs={24} 
             lg={10} 
-            order={0} // 移动端默认先显示（处于顶部）
-            lgOrder={1} // 大屏设备默认顺序
           >
             {renderOrderSummary()}
           </Col>
