@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Form, Input, Button, Row, Col, Typography, Space, Alert, Divider, Tag, Steps } from 'antd';
+import { Card, Form, Input, Button, Row, Col, Typography, Space, Alert, Divider, Tag, Steps, Switch, Select } from 'antd';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { 
@@ -51,6 +51,23 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ country, scenario }) => {
   const [error, setError] = useState<string | null>(null);
   const [currentStep, setCurrentStep] = useState(0);
   const [currentOrderId, setCurrentOrderId] = useState<string>(''); // 存储当前的订单ID
+  
+  // 自定义金额和币种状态
+  const [useCustomAmount, setUseCustomAmount] = useState(false);
+  const [customAmount, setCustomAmount] = useState<number>(0);
+  const [customCurrency, setCustomCurrency] = useState<string>(country.currency);
+  
+  // 预设币种选项
+  const currencyOptions = [
+    { value: 'USD', label: 'USD - US Dollar' },
+    { value: 'EUR', label: 'EUR - Euro' },
+    { value: 'GBP', label: 'GBP - British Pound' },
+    { value: 'JPY', label: 'JPY - Japanese Yen' },
+    { value: 'CNY', label: 'CNY - Chinese Yuan' },
+    { value: 'KRW', label: 'KRW - Korean Won' },
+    { value: 'SGD', label: 'SGD - Singapore Dollar' },
+    { value: 'HKD', label: 'HKD - Hong Kong Dollar' }
+  ];
 
   const generateMerchantTransId = () => {
     // 使用当前时间戳的后8位（秒级时间戳）
@@ -82,10 +99,28 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ country, scenario }) => {
     console.log('为新的支付流程生成订单ID:', newOrderId);
     // 重置表单
     form.resetFields();
+    // 重置自定义金额设置
+    setUseCustomAmount(false);
+    setCustomAmount(0);
   }, [scenario.id]); // 移除form依赖，防止无限循环
+
+  // 当国家变化时，更新自定义币种的默认值
+  useEffect(() => {
+    setCustomCurrency(country.currency);
+  }, [country.currency]);
 
   // 计算订单总额
   const calculateTotal = () => {
+    if (useCustomAmount && customAmount > 0) {
+      // 如果使用自定义金额，直接返回该金额作为总价
+      return {
+        subtotal: customAmount,
+        shipping: 0,
+        tax: 0,
+        total: customAmount
+      };
+    }
+    
     const subtotal = mockProducts.reduce((sum, product) => sum + (product.price * product.quantity), 0);
     const shipping = 10;
     const tax = Math.floor(subtotal * 0.1); // 10% 税费，取整
@@ -97,7 +132,19 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ country, scenario }) => {
     };
   };
 
+  // 获取当前使用的货币
+  const getCurrentCurrency = () => {
+    return useCustomAmount ? customCurrency : country.currency;
+  };
+
+  // 获取当前使用的总金额
+  const getCurrentTotal = () => {
+    return calculateTotal().total;
+  };
+
   const orderSummary = calculateTotal();
+  const currentCurrency = getCurrentCurrency();
+  const currentTotal = getCurrentTotal();
 
   const handleSubmit = async (values: any) => {
     // 强制重置所有状态，确保全新开始
@@ -116,11 +163,11 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ country, scenario }) => {
       console.log('当前时间戳:', Date.now(), '，性能时间:', performance.now());
       
       const paymentRequest: PaymentRequest = {
-        amount: orderSummary.total,
-        currency: country.currency,
+        amount: currentTotal,
+        currency: currentCurrency,
         merchantTransId,
         paymentType: scenario.type,
-        returnUrl: `${baseUrl}/payment-result?orderId=${merchantTransId}&paymentType=${scenario.type}&amount=${orderSummary.total}&currency=${country.currency}`,
+        returnUrl: `${baseUrl}/payment-result?orderId=${merchantTransId}&paymentType=${scenario.type}&amount=${currentTotal}&currency=${currentCurrency}`,
         webhookUrl: `${baseUrl}/api/v1/payment/webhook`,
       };
 
@@ -168,50 +215,66 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ country, scenario }) => {
 
   const renderOrderSummary = () => (
     <Card className="order-summary-card" title={<><ShoppingCartOutlined /> Order Summary</>}>
-      <div className="products-list">
-        {mockProducts.map(product => (
-          <div key={product.id} className="product-item">
-            <div className="product-image">
-              <div className="image-placeholder">
-                <ShoppingCartOutlined style={{ fontSize: 24, color: '#ccc' }} />
+      {useCustomAmount && (
+        <Alert
+          message="Custom Amount Applied"
+          description={`You are using a custom payment amount: ${currentCurrency} ${currentTotal}`}
+          type="warning"
+          showIcon
+          style={{ marginBottom: 16 }}
+        />
+      )}
+      
+      {!useCustomAmount && (
+        <div className="products-list">
+          {mockProducts.map(product => (
+            <div key={product.id} className="product-item">
+              <div className="product-image">
+                <div className="image-placeholder">
+                  <ShoppingCartOutlined style={{ fontSize: 24, color: '#ccc' }} />
+                </div>
+              </div>
+              <div className="product-details">
+                <Text strong>{product.name}</Text>
+                <Text type="secondary" className="product-description">
+                  {product.description}
+                </Text>
+                <div className="product-quantity">
+                  Qty: {product.quantity}
+                </div>
+              </div>
+              <div className="product-price">
+                <Text strong>{country.currency} {product.price}</Text>
               </div>
             </div>
-            <div className="product-details">
-              <Text strong>{product.name}</Text>
-              <Text type="secondary" className="product-description">
-                {product.description}
-              </Text>
-              <div className="product-quantity">
-                Qty: {product.quantity}
-              </div>
-            </div>
-            <div className="product-price">
-              <Text strong>${product.price}</Text>
-            </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
       
       <Divider style={{ margin: '16px 0' }} />
       
       <div className="price-breakdown">
-        <div className="price-row">
-          <Text>Subtotal:</Text>
-          <Text>${orderSummary.subtotal}</Text>
-        </div>
-        <div className="price-row">
-          <Text>Shipping:</Text>
-          <Text>${orderSummary.shipping}</Text>
-        </div>
-        <div className="price-row">
-          <Text>Tax:</Text>
-          <Text>${orderSummary.tax}</Text>
-        </div>
-        <Divider style={{ margin: '12px 0' }} />
+        {!useCustomAmount && (
+          <>
+            <div className="price-row">
+              <Text>Subtotal:</Text>
+              <Text>{country.currency} {orderSummary.subtotal}</Text>
+            </div>
+            <div className="price-row">
+              <Text>Shipping:</Text>
+              <Text>{country.currency} {orderSummary.shipping}</Text>
+            </div>
+            <div className="price-row">
+              <Text>Tax:</Text>
+              <Text>{country.currency} {orderSummary.tax}</Text>
+            </div>
+            <Divider style={{ margin: '12px 0' }} />
+          </>
+        )}
         <div className="price-row total-row">
           <Text strong style={{ fontSize: '18px' }}>Total:</Text>
           <Text strong style={{ fontSize: '18px', color: '#1890ff' }}>
-            {country.currency} {orderSummary.total}
+            {currentCurrency} {currentTotal}
           </Text>
         </div>
       </div>
@@ -237,6 +300,75 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ country, scenario }) => {
           </Space>
         }
       >
+        {/* 自定义金额和币种调整 */}
+        <div className="custom-payment-section">
+          <Card 
+            title="Custom Payment Options" 
+            size="small"
+            className="custom-payment-card"
+            extra={
+              <Form.Item name="useCustomAmount" valuePropName="checked" noStyle>
+                <Switch 
+                  checked={useCustomAmount} 
+                  onChange={setUseCustomAmount}
+                  checkedChildren="Custom"
+                  unCheckedChildren="Default"
+                  size="small"
+                />
+              </Form.Item>
+            }
+          >
+            {useCustomAmount ? (
+              <Space direction="vertical" style={{ width: '100%' }} size="middle">
+                <Row gutter={16}>
+                  <Col span={12}>
+                    <Form.Item
+                      name="customAmount"
+                      rules={[{ required: true, message: 'Please enter amount' }]}
+                      noStyle
+                    >
+                      <Input
+                        size="large"
+                        placeholder="Enter custom amount"
+                        type="number"
+                        min={0.01}
+                        step={0.01}
+                        value={customAmount}
+                        onChange={(e) => setCustomAmount(parseFloat(e.target.value) || 0)}
+                        prefix={<CreditCardOutlined />}
+                      />
+                    </Form.Item>
+                  </Col>
+                  <Col span={12}>
+                    <Select
+                      size="large"
+                      value={customCurrency}
+                      onChange={setCustomCurrency}
+                      options={currencyOptions}
+                      className="currency-select"
+                    />
+                  </Col>
+                </Row>
+                <Alert
+                  message="Custom Payment Info"
+                  description="You are using a custom payment amount and currency. This will override the default order amount."
+                  type="info"
+                  showIcon
+                  style={{ marginBottom: 0 }}
+                />
+              </Space>
+            ) : (
+              <Alert
+                message="Default Payment"
+                description="You are using the default order amount and currency. Toggle to Custom to adjust."
+                type="info"
+                showIcon
+                style={{ marginBottom: 0 }}
+              />
+            )}
+          </Card>
+        </div>
+
         <Form
           form={form}
           layout="vertical"
@@ -334,7 +466,7 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ country, scenario }) => {
               icon={<CreditCardOutlined />}
               className="pay-button"
             >
-              {loading ? t('payment.processing') : `Pay ${country.currency} ${orderSummary.total}`}
+              {loading ? t('payment.processing') : `Pay ${currentCurrency} ${currentTotal}`}
             </Button>
           </Form.Item>
           
@@ -452,7 +584,7 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ country, scenario }) => {
                       console.log('Payment completed:', params);
                       // Drop-in支付完成后跳转到结果页面，使用预生成的订单ID并传递金额信息
                       const merchantTransId = currentOrderId || result.merchantTransId || generateMerchantTransId();
-                      navigate(`/payment-result?orderId=${merchantTransId}&paymentType=dropin&amount=${orderSummary.total}&currency=${country.currency}`);
+                      navigate(`/payment-result?orderId=${merchantTransId}&paymentType=dropin&amount=${currentTotal}&currency=${currentCurrency}`);
                     }}
                     onPaymentFailed={async (params) => {
                       console.log('Payment failed:', params);
