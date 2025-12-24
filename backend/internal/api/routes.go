@@ -62,27 +62,39 @@ func getCountries(c *gin.Context) {
 
 // 获取支付场景列表
 func getScenarios(c *gin.Context) {
+	cfg := config.Load()
+	currentEnv := cfg.CurrentAPIEnv
+	currentEnvStr := string(currentEnv)
+	
+	// 根据当前环境设置场景的Environment字段
+	var envStr string
+	if currentEnv == config.Production {
+		envStr = "PROD"
+	} else {
+		envStr = "UAT"
+	}
+	
 	scenarios := []models.PaymentScenario{
 		{
-			ID:          "uat-linkpay",
-			Name:        "UAT-LinkPay Demo",
-			Environment: "UAT",
+			ID:          currentEnvStr + "-linkpay",
+			Name:        envStr + "-LinkPay Demo",
+			Environment: envStr,
 			Type:        "linkpay",
-			Description: "UAT环境LinkPay支付演示",
+			Description: envStr + "环境LinkPay支付演示",
 		},
 		{
-			ID:          "uat-dropin",
-			Name:        "UAT-Drop-in Demo",
-			Environment: "UAT",
+			ID:          currentEnvStr + "-dropin",
+			Name:        envStr + "-Drop-in Demo",
+			Environment: envStr,
 			Type:        "dropin",
-			Description: "UAT环境Drop-in支付演示",
+			Description: envStr + "环境Drop-in支付演示",
 		},
 		{
-			ID:          "uat-directapi",
-			Name:        "UAT-Direct API Demo",
-			Environment: "UAT",
+			ID:          currentEnvStr + "-directapi",
+			Name:        envStr + "-Direct API Demo",
+			Environment: envStr,
 			Type:        "directapi",
-			Description: "UAT环境Direct API支付演示",
+			Description: envStr + "环境Direct API支付演示",
 		},
 	}
 

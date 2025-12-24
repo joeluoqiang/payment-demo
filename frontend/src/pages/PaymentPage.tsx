@@ -14,6 +14,7 @@ import {
 import type { PaymentRequest, Country, PaymentScenario } from '../types';
 import DropInComponent from '../components/DropInComponent';
 import { apiService } from '../services/api';
+import { useApp } from '../context/AppContext';
 
 const { Title, Text } = Typography;
 const { Step } = Steps;
@@ -51,6 +52,7 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ country, scenario }) => {
   const [error, setError] = useState<string | null>(null);
   const [currentStep, setCurrentStep] = useState(0);
   const [currentOrderId, setCurrentOrderId] = useState<string>(''); // 存储当前的订单ID
+  const { config } = useApp(); // 获取当前环境配置
   
   // 自定义金额和币种状态
   const [useCustomAmount, setUseCustomAmount] = useState(false);
@@ -149,6 +151,15 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ country, scenario }) => {
   const handleSubmit = async (values: any) => {
     // 强制重置所有状态，确保全新开始
     console.log('开始新的支付流程，当前订单ID:', currentOrderId);
+    
+    // 记录用户点击支付按钮的日志，特别是dropin类型
+    if (scenario.type === 'dropin') {
+      console.log('[DropIn] 用户点击了体验dropin支付流程按钮');
+      console.log('[DropIn] 当前场景:', scenario.name);
+      console.log('[DropIn] 当前环境:', scenario.environment);
+      console.log('[DropIn] 支付金额:', currentCurrency, currentTotal);
+    }
+    
     setResult(null);
     setError(null);
     setCurrentStep(1);
@@ -182,6 +193,7 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ country, scenario }) => {
         };
         response = await apiService.createDirectPayment(paymentRequest);
       } else {
+        console.log('[DropIn] 调用API创建支付交互，获取sessionId');
         response = await apiService.createInteraction(paymentRequest);
       }
 
@@ -577,7 +589,8 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ country, scenario }) => {
                   <DropInComponent
                     key={result.sessionId} // 强制React在sessionId变化时重新挂载组件
                     sessionId={result.sessionId}
-                    environment={scenario.environment}
+                    // 使用当前配置的环境，而不是场景固定的环境
+                    environment={config?.currentEnv === 'production' ? 'PROD' : 'UAT'}
                     onPaymentCompleted={(params) => {
                       console.log('Payment completed:', params);
                       // Drop-in支付完成后跳转到结果页面，使用预生成的订单ID并传递金额信息

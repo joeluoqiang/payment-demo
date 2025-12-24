@@ -23,6 +23,22 @@ const DropInComponent: React.FC<DropInComponentProps> = ({
   const [isInitializing, setIsInitializing] = React.useState(false);
   const [useMockComponent, setUseMockComponent] = React.useState(false);
   const currentSdkInstance = useRef<any>(null); // 保存当前SDK实例的引用
+  
+  // 使用ref存储最新的回调函数，避免因回调函数变化导致的不必要重初始化
+  const callbacksRef = useRef({
+    onPaymentCompleted,
+    onPaymentFailed,
+    onPaymentCancelled
+  });
+  
+  // 更新回调函数ref
+  useEffect(() => {
+    callbacksRef.current = {
+      onPaymentCompleted,
+      onPaymentFailed,
+      onPaymentCancelled
+    };
+  }, [onPaymentCompleted, onPaymentFailed, onPaymentCancelled]);
 
   // 完全销毁SDK实例的函数
   const destroySdkInstance = React.useCallback(() => {
@@ -69,6 +85,7 @@ const DropInComponent: React.FC<DropInComponentProps> = ({
       // 检查SDK是否已经加载
       if ((window as any).DropInSDK) {
         console.log('Drop-in SDK already loaded');
+        console.log('[DropIn] 当前使用的index.min.js来源: CDN缓存 (已加载到window对象)');
         setSdkLoaded(true);
         return;
       }
@@ -96,6 +113,7 @@ const DropInComponent: React.FC<DropInComponentProps> = ({
       script.setAttribute('cache-control', 'no-cache, no-store, must-revalidate');
       script.onload = () => {
         console.log('Drop-in SDK loaded successfully');
+        console.log('[DropIn] 当前使用的index.min.js来源: CDN实时拉取 (' + sdkUrl + ')');
         // 等待一小段时间确保SDK完全初始化
         setTimeout(() => {
           if ((window as any).DropInSDK || (window as any).DropinSDK) {
@@ -104,6 +122,7 @@ const DropInComponent: React.FC<DropInComponentProps> = ({
           } else {
             console.error('DropInSDK not found after script load');
             console.log('Available window objects:', Object.keys(window).filter(key => key.toLowerCase().includes('drop')));
+            console.log('[DropIn] 当前使用的index.min.js来源: 加载失败，切换到本地模拟组件');
             setUseMockComponent(true);
           }
         }, 1000);
@@ -111,6 +130,7 @@ const DropInComponent: React.FC<DropInComponentProps> = ({
       script.onerror = (err) => {
         console.error('Failed to load Drop-in SDK:', err);
         console.log('SDK loading failed, switching to mock component');
+        console.log('[DropIn] 当前使用的index.min.js来源: 加载失败，切换到本地模拟组件');
         setUseMockComponent(true);
       };
       

@@ -22,23 +22,23 @@ interface HomePageProps {
   // 不需要onStartDemo了，使用useNavigate
 }
 
-// 场景配置
-const scenarioConfigs = {
-  'uat-linkpay': {
+// 场景配置，根据支付类型动态匹配，不依赖固定场景ID
+const scenarioConfigsByType = {
+  linkpay: {
     icon: <ShoppingCartOutlined />,
     color: '#0275DD',
     bgGradient: 'linear-gradient(135deg, #0275DD 0%, #054D8E 100%)',
     image: '/api/placeholder/300/200',
     features: ['One-click payment', 'Mobile optimized', 'Multi-currency']
   },
-  'uat-dropin': {
+  dropin: {
     icon: <CreditCardOutlined />,
     color: '#4ADAFC',
     bgGradient: 'linear-gradient(135deg, #4ADAFC 0%, #0275DD 100%)',
     image: '/api/placeholder/300/200',
     features: ['Embedded UI', 'Multiple methods', 'Real-time validation']
   },
-  'uat-directapi': {
+  directapi: {
     icon: <ApiOutlined />,
     color: '#48E5CE',
     bgGradient: 'linear-gradient(135deg, #48E5CE 0%, #4ADAFC 100%)',
@@ -233,7 +233,8 @@ const HomePage: React.FC<HomePageProps> = () => {
           
           <Row gutter={[24, 24]} className="scenarios-grid">
             {state.scenarios.map((scenario: PaymentScenario, index) => {
-              const config = scenarioConfigs[scenario.id as keyof typeof scenarioConfigs];
+              // 根据场景类型直接获取配置
+              const config = scenarioConfigsByType[scenario.type as keyof typeof scenarioConfigsByType];
               if (!config) return null;
               
               return (
