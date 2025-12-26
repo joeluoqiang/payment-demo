@@ -1,6 +1,7 @@
 package api
 
 import (
+	"encoding/json"
 	"log"
 	"payment-demo/config"
 	"payment-demo/internal/models"
@@ -182,9 +183,9 @@ func handleWebhook(c *gin.Context) {
 		log.Printf("%s", body)
 		log.Println("==================================================")
 		
-		// 解析请求体
+		// 解析请求体（手动解析，不使用c.ShouldBindJSON避免EOF错误）
 		var notification models.WebhookNotification
-		if err := c.ShouldBindJSON(&notification); err != nil {
+		if err := json.Unmarshal(body, &notification); err != nil {
 			log.Printf("[Webhook] 解析请求体失败: %v", err)
 		} else {
 			// 打印解析后的通知数据
