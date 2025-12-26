@@ -1,6 +1,7 @@
 package api
 
 import (
+	"log"
 	"payment-demo/config"
 	"payment-demo/internal/models"
 	"payment-demo/internal/service"
@@ -158,19 +159,54 @@ func createDirectPayment(c *gin.Context) {
 
 // 处理Webhook通知
 func handleWebhook(c *gin.Context) {
-	var notification models.WebhookNotification
-	if err := c.ShouldBindJSON(&notification); err != nil {
-		c.JSON(400, gin.H{
-			"success": false,
-			"message": "Invalid webhook data",
-		})
-		return
+	// 打印收到异步通知的日志
+	log.Println("==================================================")
+	log.Println("收到Evonet异步通知")
+	log.Println("==================================================")
+	
+	// 打印请求头
+	log.Println("[Webhook Header]")
+	for key, values := range c.Request.Header {
+		for _, value := range values {
+			log.Printf("%s: %s", key, value)
+		}
 	}
-
+	
+	// 读取请求体
+	body, err := c.GetRawData()
+	if err != nil {
+		log.Printf("[Webhook] 读取请求体失败: %v", err)
+	} else {
+		// 打印请求体
+		log.Println("\n[Webhook Body]")
+		log.Printf("%s", body)
+		log.Println("==================================================")
+		
+		// 解析请求体
+		var notification models.WebhookNotification
+		if err := c.ShouldBindJSON(&notification); err != nil {
+			log.Printf("[Webhook] 解析请求体失败: %v", err)
+		} else {
+			// 打印解析后的通知数据
+			log.Println("\n[Webhook Parsed]")
+			log.Printf("EventCode: %s", notification.EventCode)
+			log.Printf("Timestamp: %v", notification.Timestamp)
+			if notification.Payment != nil {
+				log.Printf("Payment Details:")
+				log.Printf("  Transaction ID: %s", notification.Payment.MerchantTransID)
+				log.Printf("  Status: %s", notification.Payment.Status)
+				log.Printf("  Amount: %v %s", notification.Payment.Amount, notification.Payment.Currency)
+				log.Printf("  Created At: %v", notification.Payment.CreatedAt)
+			}
+		}
+	}
+	
 	// 在实际应用中，这里应该验证webhook签名
 	// 并更新数据库中的支付状态
 
-	// 返回SUCCESS确认收到通知
+	// 无论处理结果如何，都返回SUCCESS确认收到通知
+	log.Println("[Webhook] 处理完成，返回SUCCESS")
+	log.Println("==================================================")
 	c.String(200, "SUCCESS")
 }
 
