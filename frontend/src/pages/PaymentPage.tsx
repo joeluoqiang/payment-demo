@@ -16,6 +16,9 @@ import DropInComponent from '../components/DropInComponent';
 import { apiService } from '../services/api';
 import { useApp } from '../context/AppContext';
 
+// 从API_BASE_URL获取后端域名，用于构建webhook URL
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
+
 const { Title, Text } = Typography;
 const { Step } = Steps;
 
@@ -179,7 +182,7 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ country, scenario }) => {
         merchantTransId,
         paymentType: scenario.type,
         returnUrl: `${baseUrl}/payment-result?orderId=${merchantTransId}&paymentType=${scenario.type}&amount=${currentTotal}&currency=${currentCurrency}`,
-        webhookUrl: `${baseUrl}/api/v1/payment/webhook`,
+        webhookUrl: `${API_BASE_URL}/api/v1/payment/webhook`,
       };
 
       let response;
