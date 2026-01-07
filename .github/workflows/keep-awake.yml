@@ -3,7 +3,7 @@ name: Render Keep Alive
 on:
   schedule:
     # 每 5 分钟触发一次 (UTC时区)
-    - cron: '*/5 * * * *'
+    - cron: '*/7 * * * *'
   # 支持手动触发
   workflow_dispatch: {}
 
