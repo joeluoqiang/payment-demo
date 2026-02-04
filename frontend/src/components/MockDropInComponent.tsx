@@ -24,9 +24,9 @@ const MockDropInComponent: React.FC<MockDropInComponentProps> = ({
 
   // 组件初始化时记录日志
   React.useEffect(() => {
-    console.log('[DropIn] 当前使用的index.min.js来源: 本地模拟组件 (未使用外部index.min.js)');
-    console.log('[DropIn] 模拟组件环境:', environment);
-    console.log('[DropIn] 模拟组件会话ID:', sessionId);
+    console.log('[DropIn] Current index.min.js source: Local mock component (not using external index.min.js)');
+    console.log('[DropIn] Mock component environment:', environment);
+    console.log('[DropIn] Mock component session ID:', sessionId);
   }, [environment, sessionId]);
 
   const handleSubmit = async (values: any) => {
