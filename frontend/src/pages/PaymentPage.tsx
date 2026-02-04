@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { Card, Form, Input, Button, Row, Col, Typography, Space, Alert, Divider, Tag, Steps, Switch, Select } from 'antd';
-import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { 
   ArrowLeftOutlined, 
@@ -47,7 +46,6 @@ const mockProducts = [
 ];
 
 const PaymentPage: React.FC<PaymentPageProps> = ({ country, scenario }) => {
-  const { t } = useTranslation();
   const navigate = useNavigate();
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
@@ -399,7 +397,7 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ country, scenario }) => {
             <>
               <Form.Item
                 name="cardNumber"
-                label={t('payment.cardNumber')}
+                label="Card Number"
                 rules={[{ required: true, message: 'Please enter card number' }]}
               >
                 <Input
@@ -418,7 +416,7 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ country, scenario }) => {
                 <Col span={12}>
                   <Form.Item
                     name="expiryDate"
-                    label={t('payment.expiryDate')}
+                    label="Expiry Date (MM/YY)"
                     rules={[{ required: true, message: 'Please enter expiry date' }]}
                   >
                     <Input
@@ -435,7 +433,7 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ country, scenario }) => {
                 <Col span={12}>
                   <Form.Item
                     name="cvv"
-                    label={t('payment.cvv')}
+                    label="CVV"
                     rules={[{ required: true, message: 'Please enter CVV' }]}
                   >
                     <Input
@@ -449,7 +447,7 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ country, scenario }) => {
 
               <Form.Item
                 name="holderName"
-                label={t('payment.holderName')}
+                label="Cardholder Name"
                 rules={[{ required: true, message: 'Please enter cardholder name' }]}
               >
                 <Input
@@ -481,7 +479,7 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ country, scenario }) => {
               icon={<CreditCardOutlined />}
               className="pay-button"
             >
-              {loading ? t('payment.processing') : `Pay ${currentCurrency} ${currentTotal}`}
+              {loading ? 'Processing payment...' : `Pay ${currentCurrency} ${currentTotal}`}
             </Button>
           </Form.Item>
           
@@ -516,15 +514,15 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ country, scenario }) => {
             size="large"
             className="back-button"
           >
-            {t('common.back')}
+            Back
           </Button>
           
           <div className="page-title">
             <Title level={2} style={{ margin: 0, color: 'white' }}>
-              Checkout - {t(`scenarios.${scenario.id}`)}
+              Checkout - {scenario.name || scenario.type}
             </Title>
             <Text style={{ color: 'rgba(255,255,255,0.8)' }}>
-              {t(`countries.${country.code}`)} • {country.currency}
+              {country.name || country.code} • {country.currency}
             </Text>
           </div>
         </div>
@@ -542,7 +540,7 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ country, scenario }) => {
             <Space direction="vertical" size="large" style={{ width: '100%' }}>
               {error && (
                 <Alert
-                  message={t('common.error')}
+                  message="Error"
                   description={error}
                   type="error"
                   showIcon
@@ -553,7 +551,7 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ country, scenario }) => {
 
               {result && (
                 <Alert
-                  message={result.success ? 'Payment Initiated' : t('common.error')}
+                  message={result.success ? 'Payment Initiated' : 'Error'}
                   description={
                     <div>
                       <div>Status: {result.status}</div>
@@ -584,7 +582,7 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ country, scenario }) => {
                     style={{ marginBottom: 16 }}
                   />
                   <Alert
-                    message={t('payment.testCardInfo')}
+                    message="You can use the following card information for testing: Card Number: 4895 3301 1111 1119, Expiry Date: 12/31, CVV: 390, If OTP is required, please enter: 123456"
                     type="warning"
                     showIcon
                     style={{ marginBottom: 16 }}

@@ -51,17 +51,17 @@ const MockDropInComponent: React.FC<MockDropInComponentProps> = ({
         console.log('Mock payment completed:', result);
         onPaymentCompleted?.(result);
       } else {
-        const result = {
-          type: 'payment_failed',
-          merchantTransID: 'mock_' + Date.now(),
-          sessionID: sessionId,
-          code: 'MOCK_DECLINED',
-          message: '模拟支付被拒绝（用于演示）',
-          timestamp: new Date().toISOString()
-        };
-        console.log('Mock payment failed:', result);
-        onPaymentFailed?.(result);
-      }
+          const result = {
+            type: 'payment_failed',
+            merchantTransID: 'mock_' + Date.now(),
+            sessionID: sessionId,
+            code: 'MOCK_DECLINED',
+            message: 'Mock payment declined (for demonstration)',
+            timestamp: new Date().toISOString()
+          };
+          console.log('Mock payment failed:', result);
+          onPaymentFailed?.(result);
+        }
       
       setLoading(false);
     }, 2000);
@@ -77,11 +77,11 @@ const MockDropInComponent: React.FC<MockDropInComponentProps> = ({
 
   return (
     <Card 
-      title="模拟 Drop-in 支付组件" 
+      title="Mock Drop-in Payment Component" 
       style={{ maxWidth: 500, margin: '0 auto' }}
       extra={
         <Alert 
-          message="模拟模式" 
+          message="Mock Mode" 
           description={`Session ID: ${sessionId}`}
           type="info"
         />
@@ -98,8 +98,8 @@ const MockDropInComponent: React.FC<MockDropInComponentProps> = ({
       >
         <Form.Item
           name="amount"
-          label="支付金额"
-          rules={[{ required: true, message: '请输入支付金额' }]}
+          label="Amount"
+          rules={[{ required: true, message: 'Please enter payment amount' }]}
         >
           <Input
             prefix="$"
@@ -110,12 +110,12 @@ const MockDropInComponent: React.FC<MockDropInComponentProps> = ({
 
         <Form.Item
           name="paymentMethod"
-          label="支付方式"
-          rules={[{ required: true, message: '请选择支付方式' }]}
+          label="Payment Method"
+          rules={[{ required: true, message: 'Please select payment method' }]}
         >
-          <Select size="large" placeholder="选择支付方式">
-            <Option value="credit_card">信用卡</Option>
-            <Option value="debit_card">借记卡</Option>
+          <Select size="large" placeholder="Select payment method">
+            <Option value="credit_card">Credit Card</Option>
+            <Option value="debit_card">Debit Card</Option>
             <Option value="paypal">PayPal</Option>
             <Option value="apple_pay">Apple Pay</Option>
             <Option value="google_pay">Google Pay</Option>
@@ -126,8 +126,8 @@ const MockDropInComponent: React.FC<MockDropInComponentProps> = ({
           <>
             <Form.Item
               name="cardNumber"
-              label="卡号"
-              rules={[{ required: true, message: '请输入卡号' }]}
+              label="Card Number"
+              rules={[{ required: true, message: 'Please enter card number' }]}
             >
               <Input
                 placeholder="4895 3301 1111 1119"
@@ -139,9 +139,9 @@ const MockDropInComponent: React.FC<MockDropInComponentProps> = ({
             <div style={{ display: 'flex', gap: 16 }}>
               <Form.Item
                 name="expiryDate"
-                label="有效期"
+                label="Expiry Date"
                 style={{ flex: 1 }}
-                rules={[{ required: true, message: '请输入有效期' }]}
+                rules={[{ required: true, message: 'Please enter expiry date' }]}
               >
                 <Input
                   placeholder="MM/YY"
@@ -154,7 +154,7 @@ const MockDropInComponent: React.FC<MockDropInComponentProps> = ({
                 name="cvv"
                 label="CVV"
                 style={{ flex: 1 }}
-                rules={[{ required: true, message: '请输入CVV' }]}
+                rules={[{ required: true, message: 'Please enter CVV' }]}
               >
                 <Input
                   placeholder="390"
@@ -174,7 +174,7 @@ const MockDropInComponent: React.FC<MockDropInComponentProps> = ({
             icon={<CreditCardOutlined />}
             size="large"
           >
-            {loading ? '处理中...' : '立即支付'}
+            {loading ? 'Processing...' : 'Pay Now'}
           </Button>
           
           <Button 
@@ -182,14 +182,14 @@ const MockDropInComponent: React.FC<MockDropInComponentProps> = ({
             disabled={loading}
             size="large"
           >
-            取消支付
+            Cancel Payment
           </Button>
         </Space>
       </Form>
 
       <div style={{ marginTop: 16, fontSize: 12, color: '#666', textAlign: 'center' }}>
-        <div>环境: {environment}</div>
-        <div>这是一个模拟的Drop-in组件，用于演示支付流程</div>
+        <div>Environment: {environment}</div>
+        <div>This is a mock Drop-in component for demonstrating the payment flow</div>
       </div>
     </Card>
   );

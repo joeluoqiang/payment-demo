@@ -231,10 +231,10 @@ const DropInComponent: React.FC<DropInComponentProps> = ({
     return (
       <div>
         <Alert
-          message="使用模拟组件"
+          message="Using Mock Component"
           description={
             <div>
-              <div>无法加载官方Drop-in SDK，正在使用模拟组件进行演示</div>
+              <div>Failed to load official Drop-in SDK, using mock component for demonstration</div>
               <div style={{ fontSize: 12, color: '#666', marginTop: 4 }}>
                 SDK URL: https://cdn.jsdelivr.net/npm/cil-dropin-components@latest/dist/index.min.js
               </div>
@@ -257,7 +257,7 @@ const DropInComponent: React.FC<DropInComponentProps> = ({
                 }}
                 style={{ marginRight: 8 }}
               >
-                重试加载SDK
+                Retry Loading SDK
               </Button>
               <Button
                 size="small"
@@ -266,7 +266,7 @@ const DropInComponent: React.FC<DropInComponentProps> = ({
                   window.open('https://cdn.jsdelivr.net/npm/cil-dropin-components@latest/dist/index.min.js', '_blank');
                 }}
               >
-                检查SDK链接
+                Check SDK Link
               </Button>
             </div>
           }
@@ -285,7 +285,7 @@ const DropInComponent: React.FC<DropInComponentProps> = ({
   if (error) {
     return (
       <Alert
-        message="Drop-in 组件错误"
+        message="Drop-in Component Error"
         description={
           <div>
             <div>{error}</div>
@@ -305,8 +305,8 @@ const DropInComponent: React.FC<DropInComponentProps> = ({
   if (!sdkLoaded) {
     return (
       <Alert
-        message="加载中..."
-        description="正在加载 Drop-in 组件 SDK"
+        message="Loading..."
+        description="Loading Drop-in Component SDK"
         type="info"
         showIcon
       />

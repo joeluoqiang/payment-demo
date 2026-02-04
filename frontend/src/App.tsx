@@ -1,8 +1,6 @@
 
 import { ConfigProvider } from 'antd';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { I18nextProvider } from 'react-i18next';
-import i18n from './locales';
 import HomePage from './pages/HomePage';
 import PaymentPage from './pages/PaymentPage';
 import PaymentResultPage from './pages/PaymentResultPage';
@@ -38,19 +36,17 @@ function AppContent() {
 
 function App() {
   return (
-    <I18nextProvider i18n={i18n}>
-      <ConfigProvider
-        theme={{
-          token: {
-            colorPrimary: '#1890ff',
-          },
-        }}
-      >
-        <AppProvider>
-          <AppContent />
-        </AppProvider>
-      </ConfigProvider>
-    </I18nextProvider>
+    <ConfigProvider
+      theme={{
+        token: {
+          colorPrimary: '#1890ff',
+        },
+      }}
+    >
+      <AppProvider>
+        <AppContent />
+      </AppProvider>
+    </ConfigProvider>
   );
 }
 

@@ -1,10 +1,8 @@
 import { useState, useEffect } from 'react';
 import type { Country, PaymentScenario, AppState } from '../types';
 import { apiService } from '../services/api';
-import { useTranslation } from 'react-i18next';
 
 export const useAppState = () => {
-  const { i18n } = useTranslation();
   
   const [state, setState] = useState<AppState>({
     selectedCountry: null,
@@ -74,24 +72,7 @@ export const useAppState = () => {
       ...prev,
       selectedCountry: country,
     }));
-    
-    // 更新语言
-    const languageMap: Record<string, string> = {
-      'GLOBAL': 'en',
-      'HK': 'zh',
-      'KR': 'ko',
-      'JP': 'ja',
-      'MY': 'ms',
-      'ID': 'id',
-      'TH': 'th',
-      'SG': 'en',
-    };
-    
-    const newLanguage = languageMap[country.code] || 'en';
-    if (newLanguage !== state.language) {
-      setState(prev => ({ ...prev, language: newLanguage }));
-      i18n.changeLanguage(newLanguage === 'zh' ? 'zh' : 'en');
-    }
+    console.log(`[useAppState] Country selected: ${country.code}, Currency: ${country.currency}`);
   };
 
   const selectScenario = (scenario: PaymentScenario) => {

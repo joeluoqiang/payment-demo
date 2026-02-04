@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Card, Select, Button, Row, Col, Typography, Space, Spin, Alert, Badge, Switch, message } from 'antd';
-import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { 
   GlobalOutlined, 
@@ -10,10 +9,8 @@ import {
   ApiOutlined
 } from '@ant-design/icons';
 import { useApp } from '../context/AppContext';
-import { getSupportedLanguage, getLanguageByCountry } from '../locales';
 import { apiService } from '../services/api';
 import type { Country, PaymentScenario } from '../types';
-import i18n from '../locales';
 
 const { Title, Paragraph, Text } = Typography;
 const { Option } = Select;
@@ -48,7 +45,6 @@ const scenarioConfigsByType = {
 };
 
 const HomePage: React.FC<HomePageProps> = () => {
-  const { t } = useTranslation();
   const navigate = useNavigate();
   const { state, loading, error, config, selectCountry, selectScenario } = useApp();
   const [selectedScenarioId, setSelectedScenarioId] = useState<string | null>(null);
@@ -74,13 +70,7 @@ const HomePage: React.FC<HomePageProps> = () => {
     const country = state.countries.find(c => c.code === value);
     if (country) {
       selectCountry(country);
-      // 根据国家自动切换语言
-      const countryLanguage = getLanguageByCountry(value);
-      const supportedLang = getSupportedLanguage(countryLanguage);
-      if (i18n.language !== supportedLang) {
-        i18n.changeLanguage(supportedLang);
-        console.log(`[HomePage] Language changed to: ${supportedLang} for country: ${value}`);
-      }
+      console.log(`[HomePage] Country selected: ${value}, Currency: ${country.currency}`);
     }
   };
 
@@ -165,7 +155,7 @@ const HomePage: React.FC<HomePageProps> = () => {
                 {state.countries.map((country: Country) => (
                   <Option key={country.code} value={country.code}>
                     <Space>
-                      <span>{t(`countries.${country.code}`)}</span>
+                      <span>{country.name || country.code}</span>
                       <Badge 
                         count={country.currency} 
                         style={{ 
@@ -188,10 +178,10 @@ const HomePage: React.FC<HomePageProps> = () => {
         <div className="hero-section">
           <div className="hero-content fade-in-up">
             <Title level={1} className="hero-title">
-              {t('home.title')}
+              Payment Integration Demo
             </Title>
             <Paragraph className="hero-subtitle">
-              {t('home.subtitle')}
+              Experience different payment solutions with cutting-edge technology
             </Paragraph>
             
             {config && (
@@ -215,7 +205,7 @@ const HomePage: React.FC<HomePageProps> = () => {
         {error && (
           <div className="error-container fade-in-up delay-300">
             <Alert
-              message={t('common.error')}
+              message="Error"
               description={error}
               type="error"
               showIcon
@@ -267,7 +257,7 @@ const HomePage: React.FC<HomePageProps> = () => {
                   >
                     <div className="scenario-content">
                       <Title level={4} className="scenario-title">
-                        {t(`scenarios.${scenario.id}`)}
+                        {scenario.name || scenario.type}
                       </Title>
                       
                       <ul className="scenario-features">
