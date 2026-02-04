@@ -153,6 +153,7 @@ func (s *PaymentService) CreateDirectPayment(req *models.PaymentRequest) (*model
 				"cardInfo": map[string]interface{}{
 					"cardNumber": req.CardInfo.CardNumber,
 					"expiryDate": req.CardInfo.ExpiryDate,
+					"cvv": req.CardInfo.CVV,
 					"holderName": req.CardInfo.HolderName,
 				},
 			},
