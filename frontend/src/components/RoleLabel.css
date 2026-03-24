@@ -1,0 +1,69 @@
+/* RoleLabel Component Styles */
+
+.role-label {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-sm, 8px);
+  padding: var(--spacing-xs, 4px) var(--spacing-md, 16px);
+  border-radius: var(--radius-md, 8px);
+  font-size: 14px;
+  font-weight: 500;
+  transition: all var(--transition-fast, 0.15s ease-out);
+  border: 1px solid transparent;
+}
+
+.role-label__icon {
+  font-size: 16px;
+  line-height: 1;
+}
+
+.role-label__text {
+  white-space: nowrap;
+}
+
+/* Merchant Role Styles */
+.role-label--merchant {
+  background-color: var(--role-merchant-bg, #f5f5f5);
+  border-color: var(--role-merchant-border, #d9d9d9);
+  color: var(--role-merchant-text, #595959);
+}
+
+.role-label--merchant:hover {
+  background-color: #ebebeb;
+  border-color: #bfbfbf;
+}
+
+/* Evonet Role Styles */
+.role-label--evonet {
+  background-color: var(--role-evonet-bg, #e6f7ff);
+  border-color: var(--role-evonet-border, #1890ff);
+  color: var(--evonet-primary, #1890ff);
+}
+
+.role-label--evonet:hover {
+  background-color: #bae7ff;
+  border-color: #40a9ff;
+}
+
+/* Size Variants */
+.role-label--small {
+  padding: 2px 8px;
+  font-size: 12px;
+}
+
+.role-label--large {
+  padding: 6px 20px;
+  font-size: 16px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .role-label {
+    padding: var(--spacing-xs, 4px) var(--spacing-sm, 8px);
+    font-size: 12px;
+  }
+
+  .role-label__icon {
+    font-size: 14px;
+  }
+}

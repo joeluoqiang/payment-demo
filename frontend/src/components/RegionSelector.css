@@ -1,0 +1,75 @@
+.region-selector {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.region-selector__select {
+  min-width: 180px;
+}
+
+.region-selector__option {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 4px 0;
+}
+
+.region-selector__option-content {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.region-selector__flag {
+  font-size: 18px;
+}
+
+.region-selector__payment-methods {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+
+.region-selector__info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Compact variant */
+.region-selector--compact {
+  flex-direction: row;
+  align-items: center;
+}
+
+.region-selector--compact .region-selector__select {
+  min-width: 120px;
+}
+
+.region-selector--compact .region-selector__select .ant-select-selector {
+  background: transparent !important;
+  border: none !important;
+  padding: 0 8px !important;
+}
+
+/* Dropdown variant */
+.region-selector--dropdown {
+  position: relative;
+}
+
+.region-selector--dropdown .region-selector__select {
+  width: 100%;
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .region-selector--compact .region-selector__select .ant-select-selector {
+    color: rgba(255, 255, 255, 0.85);
+  }
+
+  .region-selector__option-content span {
+    color: rgba(255, 255, 255, 0.85);
+  }
+}

@@ -1,5 +1,5 @@
 import React, { createContext, useContext } from 'react';
-import type { AppState, Country, PaymentScenario } from '../types';
+import type { AppState, Country, PaymentScenario, ViewMode } from '../types';
 import { useAppState } from '../hooks/useAppState';
 
 interface AppContextType {
@@ -10,6 +10,13 @@ interface AppContextType {
   selectCountry: (country: Country) => void;
   selectScenario: (scenario: PaymentScenario) => void;
   resetSelection: () => void;
+  setViewMode: (mode: ViewMode) => void;
+  toggleViewMode: () => void;
+  setRoleLabelsEnabled: (enabled: boolean) => void;
+  toggleRoleLabels: () => void;
+  setRecording: (recording: boolean) => void;
+  toggleRecording: () => void;
+  setRegion: (region: string) => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);

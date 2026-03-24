@@ -16,7 +16,7 @@
   --success-color: #48E5CE;
   --warning-color: #f59e0b;
   --error-color: #ef4444;
-  
+
   /* 中性色 */
   --gray-50: #f8fafc;
   --gray-100: #f1f5f9;
@@ -28,25 +28,58 @@
   --gray-700: #334155;
   --gray-800: #1e293b;
   --gray-900: #0f172a;
-  
+
+  /* 品牌色 - Design Spec */
+  --evonet-primary: #1890ff;
+  --evonet-primary-light: #e6f7ff;
+
+  /* 角色标注色 - Design Spec */
+  --role-merchant-bg: #f5f5f5;
+  --role-merchant-border: #d9d9d9;
+  --role-merchant-text: #595959;
+
+  --role-evonet-bg: #e6f7ff;
+  --role-evonet-border: #1890ff;
+
+  /* 状态色 - Design Spec */
+  --status-success: #52c41a;
+  --status-error: #ff4d4f;
+  --status-warning: #faad14;
+
+  /* 间距 - Design Spec */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+
+  /* 圆角 - Design Spec */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+
+  /* 字体 - Design Spec */
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: 'JetBrains Mono', 'SF Mono', Consolas, monospace;
+
   /* 背景和渐变 */
   --bg-primary: linear-gradient(135deg, #0275DD 0%, #054D8E 100%);
   --bg-secondary: linear-gradient(135deg, #4ADAFC 0%, #48E5CE 100%);
   --bg-tech: linear-gradient(135deg, #4ADAFC 0%, #0275DD 100%);
   --bg-glass: rgba(255, 255, 255, 0.1);
   --bg-dark: linear-gradient(135deg, #054D8E 0%, #0275DD 100%);
-  
+
   /* 字体 */
-  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family: var(--font-sans);
   font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
-  
+
   /* 阴影 */
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
   --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
   --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-  
+
   /* 动画 */
   --transition-fast: 0.15s ease-out;
   --transition-normal: 0.3s ease-out;
@@ -58,6 +91,7 @@ body {
   min-height: 100vh;
   background: var(--bg-primary);
   color: var(--gray-900);
+  font-family: var(--font-sans);
   font-size: 16px;
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;

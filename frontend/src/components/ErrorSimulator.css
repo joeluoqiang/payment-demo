@@ -1,0 +1,99 @@
+/* ErrorSimulator Component Styles */
+
+.error-simulator {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md, 16px);
+}
+
+.error-simulator__card {
+  border-radius: var(--radius-lg, 12px);
+  border: 1px solid var(--gray-200, #e2e8f0);
+}
+
+.error-simulator__header {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm, 8px);
+  margin-bottom: var(--spacing-sm, 8px);
+}
+
+.error-simulator__header-icon {
+  font-size: 18px;
+  color: var(--status-error, #ff4d4f);
+}
+
+.error-simulator__description {
+  margin-bottom: 0;
+  font-size: 13px;
+}
+
+.error-simulator__select-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs, 4px);
+}
+
+.error-simulator__label {
+  font-weight: 500;
+  font-size: 13px;
+  color: var(--gray-700, #334155);
+}
+
+.error-simulator__info {
+  border-radius: var(--radius-md, 8px);
+}
+
+.error-simulator__actions {
+  display: flex;
+  gap: var(--spacing-sm, 8px);
+}
+
+.error-simulator__result {
+  border-radius: var(--radius-lg, 12px);
+  border: 1px solid var(--status-error, #ff4d4f);
+  background: #fff2f0;
+}
+
+.error-simulator__error-details {
+  margin-top: var(--spacing-sm, 8px);
+}
+
+.error-simulator__error-details .ant-paragraph {
+  margin-bottom: var(--spacing-sm, 8px);
+}
+
+/* Select dropdown styling */
+.error-simulator .ant-select-selector {
+  border-radius: var(--radius-md, 8px) !important;
+}
+
+.error-simulator .ant-select-selection-placeholder {
+  color: var(--gray-400, #94a3b8);
+}
+
+/* Error icon animation */
+.error-simulator__header-icon {
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .error-simulator__actions {
+    flex-direction: column;
+  }
+
+  .error-simulator__actions .ant-btn {
+    width: 100%;
+  }
+}

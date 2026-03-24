@@ -1,0 +1,189 @@
+.subscription-page {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 24px;
+}
+
+.subscription-page--loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.subscription-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.page-header {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  margin-bottom: 24px;
+  padding: 16px 24px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  backdrop-filter: blur(10px);
+}
+
+.back-button {
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: white;
+}
+
+.back-button:hover {
+  background: rgba(255, 255, 255, 0.3);
+  color: white;
+}
+
+.page-title {
+  flex: 1;
+}
+
+.flow-card {
+  margin-bottom: 24px;
+  border-radius: 12px;
+}
+
+.main-role-label {
+  margin-bottom: 16px;
+}
+
+/* Plan Cards */
+.plan-card {
+  border-radius: 16px;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  min-height: 480px;
+}
+
+.plan-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+}
+
+.plan-card--selected {
+  border: 2px solid #1890ff;
+  box-shadow: 0 0 0 4px rgba(24, 144, 255, 0.2);
+}
+
+.plan-card--popular {
+  border: 2px solid #faad14;
+}
+
+.plan-card__badge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+}
+
+.plan-card__header {
+  text-align: center;
+  padding: 16px 0;
+}
+
+.plan-card__icon {
+  font-size: 48px;
+  color: #1890ff;
+  margin-bottom: 16px;
+}
+
+.plan-card--popular .plan-card__icon {
+  color: #faad14;
+}
+
+.plan-card__price {
+  text-align: center;
+  padding: 16px 0;
+}
+
+.plan-card__currency {
+  font-size: 20px;
+  font-weight: 500;
+  vertical-align: top;
+}
+
+.plan-card__amount {
+  font-size: 48px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.plan-card__interval {
+  font-size: 16px;
+  color: #8c8c8c;
+}
+
+.plan-card__feature {
+  border: none !important;
+  padding: 8px 0 !important;
+}
+
+.plan-card__check {
+  color: #52c41a;
+  margin-right: 8px;
+}
+
+/* Payment Card */
+.payment-card {
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.section-role-label {
+  margin-bottom: 16px;
+}
+
+/* Result Card */
+.result-card {
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.result-card__content {
+  text-align: center;
+  padding: 24px;
+}
+
+.result-card__icon {
+  font-size: 72px;
+  color: #52c41a;
+  margin-bottom: 24px;
+}
+
+.result-card__details {
+  background: #f5f5f5;
+  border-radius: 8px;
+  padding: 16px;
+  margin: 24px 0;
+  text-align: left;
+}
+
+.result-card__detail-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid #e8e8e8;
+}
+
+.result-card__detail-row:last-child {
+  border-bottom: none;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .plan-card {
+    min-height: auto;
+  }
+
+  .plan-card__amount {
+    font-size: 36px;
+  }
+}

@@ -1,0 +1,85 @@
+.demo-recorder {
+  display: flex;
+  flex-direction: column;
+}
+
+.demo-recorder__card {
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.demo-recorder__header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.demo-recorder__icon {
+  font-size: 18px;
+  color: #1890ff;
+}
+
+.demo-recorder__controls {
+  display: flex;
+  gap: 8px;
+}
+
+.demo-recorder__steps {
+  margin-top: 8px;
+}
+
+.demo-recorder__steps-list {
+  list-style: none;
+  padding: 0;
+  margin: 8px 0 0 0;
+  max-height: 150px;
+  overflow-y: auto;
+}
+
+.demo-recorder__step-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.demo-recorder__step-item:last-child {
+  border-bottom: none;
+}
+
+.demo-recorder__step-more {
+  padding: 4px 0;
+  text-align: center;
+}
+
+.demo-recorder__share-info {
+  background: #f5f5f5;
+  padding: 12px;
+  border-radius: 4px;
+}
+
+.demo-recorder__share-info ul {
+  margin: 8px 0 0 0;
+  padding-left: 20px;
+}
+
+.demo-recorder__share-info li {
+  margin: 4px 0;
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .demo-recorder__card {
+    background: #1f1f1f;
+    border-color: #333;
+  }
+
+  .demo-recorder__step-item {
+    border-bottom-color: #333;
+  }
+
+  .demo-recorder__share-info {
+    background: #2a2a2a;
+  }
+}

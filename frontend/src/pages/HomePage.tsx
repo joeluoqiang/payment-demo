@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import { Card, Select, Button, Row, Col, Typography, Space, Spin, Alert, Badge, Switch, message } from 'antd';
 import { useNavigate } from 'react-router-dom';
-import { 
-  GlobalOutlined, 
+import {
+  GlobalOutlined,
   CreditCardOutlined,
   ShoppingCartOutlined,
   LinkOutlined,
-  ApiOutlined
+  ApiOutlined,
+  CrownOutlined,
+  RollbackOutlined
 } from '@ant-design/icons';
 import { useApp } from '../context/AppContext';
 import { apiService } from '../services/api';
@@ -282,6 +284,71 @@ const HomePage: React.FC<HomePageProps> = () => {
                 </Col>
               );
             })}
+          </Row>
+        </div>
+
+        {/* Additional Features Section */}
+        <div className="features-section">
+          <Title level={2} className="section-title fade-in-up">
+            Additional Features
+          </Title>
+
+          <Row gutter={[24, 24]} className="features-grid">
+            {/* Subscription Feature */}
+            <Col xs={24} md={12}>
+              <Card
+                className="feature-card hover-lift"
+                onClick={() => navigate('/subscription')}
+                hoverable
+              >
+                <div className="feature-card__icon-wrapper" style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}>
+                  <CrownOutlined className="feature-card__icon" />
+                </div>
+                <div className="feature-card__content">
+                  <Title level={4}>Subscription Plans</Title>
+                  <Paragraph type="secondary">
+                    Set up recurring payments with flexible subscription plans.
+                    Manage customer subscriptions with ease.
+                  </Paragraph>
+                  <ul className="feature-card__features">
+                    <li>Multiple plan tiers</li>
+                    <li>Recurring billing</li>
+                    <li>Easy management</li>
+                  </ul>
+                  <Button type="primary" block icon={<CrownOutlined />}>
+                    Explore Plans
+                  </Button>
+                </div>
+              </Card>
+            </Col>
+
+            {/* Refund Feature */}
+            <Col xs={24} md={12}>
+              <Card
+                className="feature-card hover-lift"
+                onClick={() => navigate('/refund')}
+                hoverable
+              >
+                <div className="feature-card__icon-wrapper" style={{ background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)' }}>
+                  <RollbackOutlined className="feature-card__icon" />
+                </div>
+                <div className="feature-card__content">
+                  <Title level={4}>Refund Management</Title>
+                  <Paragraph type="secondary">
+                    Process refunds quickly and efficiently. Support for
+                    partial and full refunds with detailed tracking.
+                  </Paragraph>
+                  <ul className="feature-card__features">
+                    <li>Partial refunds</li>
+                    <li>Status tracking</li>
+                    <li>Quick processing</li>
+                  </ul>
+                  <Button type="primary" block icon={<RollbackOutlined />}>
+                    Process Refund
+                  </Button>
+                </div>
+              </Card>
+            </Col>
           </Row>
         </div>
       </main>

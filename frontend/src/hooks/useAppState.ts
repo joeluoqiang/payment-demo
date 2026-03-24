@@ -1,15 +1,19 @@
 import { useState, useEffect } from 'react';
-import type { Country, PaymentScenario, AppState } from '../types';
+import type { Country, PaymentScenario, AppState, ViewMode } from '../types';
 import { apiService } from '../services/api';
 
 export const useAppState = () => {
-  
+
   const [state, setState] = useState<AppState>({
     selectedCountry: null,
     selectedScenario: null,
     countries: [],
     scenarios: [],
     language: 'en',
+    viewMode: 'merchant',
+    roleLabelsEnabled: false,
+    recording: false,
+    region: 'US',
   });
   
   const [loading, setLoading] = useState(false);
@@ -90,6 +94,55 @@ export const useAppState = () => {
     }));
   };
 
+  const setViewMode = (mode: ViewMode) => {
+    setState(prev => ({
+      ...prev,
+      viewMode: mode,
+    }));
+  };
+
+  const toggleViewMode = () => {
+    setState(prev => ({
+      ...prev,
+      viewMode: prev.viewMode === 'merchant' ? 'developer' : 'merchant',
+    }));
+  };
+
+  const setRoleLabelsEnabled = (enabled: boolean) => {
+    setState(prev => ({
+      ...prev,
+      roleLabelsEnabled: enabled,
+    }));
+  };
+
+  const toggleRoleLabels = () => {
+    setState(prev => ({
+      ...prev,
+      roleLabelsEnabled: !prev.roleLabelsEnabled,
+    }));
+  };
+
+  const setRecording = (recording: boolean) => {
+    setState(prev => ({
+      ...prev,
+      recording,
+    }));
+  };
+
+  const toggleRecording = () => {
+    setState(prev => ({
+      ...prev,
+      recording: !prev.recording,
+    }));
+  };
+
+  const setRegion = (region: string) => {
+    setState(prev => ({
+      ...prev,
+      region,
+    }));
+  };
+
   return {
     state,
     loading,
@@ -99,5 +152,12 @@ export const useAppState = () => {
     selectScenario,
     resetSelection,
     loadInitialData,
+    setViewMode,
+    toggleViewMode,
+    setRoleLabelsEnabled,
+    toggleRoleLabels,
+    setRecording,
+    toggleRecording,
+    setRegion,
   };
 };

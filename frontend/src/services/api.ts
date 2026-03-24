@@ -1,5 +1,17 @@
 import axios from 'axios';
-import type { Country, PaymentScenario, PaymentRequest, PaymentResponse } from '../types';
+import type {
+  Country,
+  PaymentScenario,
+  PaymentRequest,
+  PaymentResponse,
+  SubscriptionPlan,
+  SubscriptionRequest,
+  SubscriptionResponse,
+  Subscription,
+  RefundRequest,
+  RefundResponse,
+  Refund
+} from '../types';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
 
@@ -75,7 +87,7 @@ export const apiService = {
   getPaymentStatus: async (merchantTransId: string): Promise<any> => {
     console.log('[API] 查询Direct API支付状态 - merchantTransId:', merchantTransId);
     console.log('[API] 请求URL:', `/payment/${merchantTransId}`);
-    
+
     try {
       const response = await api.get(`/payment/${merchantTransId}`);
       console.log('[API] Direct API查询成功响应:', response.data);
@@ -96,7 +108,7 @@ export const apiService = {
   getInteractionStatus: async (merchantOrderId: string): Promise<any> => {
     console.log('[API] 查询Interaction状态 - merchantOrderId:', merchantOrderId);
     console.log('[API] 请求URL:', `/interaction/${merchantOrderId}`);
-    
+
     try {
       const response = await api.get(`/interaction/${merchantOrderId}`);
       console.log('[API] Interaction查询成功响应:', response.data);
@@ -111,6 +123,52 @@ export const apiService = {
       });
       throw error;
     }
+  },
+
+  // ================= Subscription APIs =================
+
+  // 获取订阅计划列表
+  getSubscriptionPlans: async (): Promise<SubscriptionPlan[]> => {
+    console.log('[API] 获取订阅计划列表...');
+    const response = await api.get('/subscription/plans');
+    return response.data.data;
+  },
+
+  // 创建订阅
+  createSubscription: async (request: SubscriptionRequest): Promise<SubscriptionResponse> => {
+    console.log('[API] 创建订阅 - planId:', request.planId);
+    const response = await api.post('/subscription', request);
+    return response.data;
+  },
+
+  // 获取订阅详情
+  getSubscription: async (subscriptionId: string): Promise<Subscription> => {
+    console.log('[API] 获取订阅详情 - subscriptionId:', subscriptionId);
+    const response = await api.get(`/subscription/${subscriptionId}`);
+    return response.data.data;
+  },
+
+  // 取消订阅
+  cancelSubscription: async (subscriptionId: string): Promise<SubscriptionResponse> => {
+    console.log('[API] 取消订阅 - subscriptionId:', subscriptionId);
+    const response = await api.post(`/subscription/${subscriptionId}/cancel`);
+    return response.data;
+  },
+
+  // ================= Refund APIs =================
+
+  // 创建退款
+  createRefund: async (request: RefundRequest): Promise<RefundResponse> => {
+    console.log('[API] 创建退款 - merchantTransId:', request.merchantTransId);
+    const response = await api.post('/refund', request);
+    return response.data;
+  },
+
+  // 获取退款详情
+  getRefund: async (refundId: string): Promise<Refund> => {
+    console.log('[API] 获取退款详情 - refundId:', refundId);
+    const response = await api.get(`/refund/${refundId}`);
+    return response.data.data;
   },
 };
 

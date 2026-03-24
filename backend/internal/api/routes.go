@@ -4,8 +4,11 @@ import (
 	"encoding/json"
 	"log"
 	"payment-demo/config"
+	"payment-demo/internal/database"
 	"payment-demo/internal/models"
 	"payment-demo/internal/service"
+	"strconv"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -39,6 +42,31 @@ func SetupRoutes(r *gin.Engine) {
 		interaction := v1.Group("/interaction")
 		{
 			interaction.GET("/:merchantOrderId", getInteractionStatus)
+		}
+
+		// 订阅相关
+		subscription := v1.Group("/subscription")
+		{
+			subscription.GET("/plans", getSubscriptionPlans)
+			subscription.POST("", createSubscription)
+			subscription.GET("/:id", getSubscription)
+			subscription.POST("/:id/cancel", cancelSubscription)
+		}
+
+		// 退款相关
+		refund := v1.Group("/refund")
+		{
+			refund.POST("", createRefund)
+			refund.GET("/:id", getRefund)
+		}
+
+		// 演示录制相关
+		recordings := v1.Group("/recordings")
+		{
+			recordings.GET("", listRecordings)
+			recordings.POST("", saveRecording)
+			recordings.GET("/:id", getRecording)
+			recordings.DELETE("/:id", deleteRecording)
 		}
 	}
 }
@@ -334,5 +362,278 @@ func switchAPIEnvironment(c *gin.Context) {
 			"apiUrl":     currentConfig.APIURL,
 			"currentEnv": string(cfg.CurrentAPIEnv),
 		},
+	})
+}
+
+// ================= Subscription Handlers =================
+
+// 获取订阅计划列表
+func getSubscriptionPlans(c *gin.Context) {
+	paymentService := service.NewPaymentService()
+	plans := paymentService.GetSubscriptionPlans()
+
+	c.JSON(200, gin.H{
+		"success": true,
+		"data":    plans,
+	})
+}
+
+// 创建订阅
+func createSubscription(c *gin.Context) {
+	var req models.SubscriptionRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(400, gin.H{
+			"success": false,
+			"message": "Invalid request parameters",
+			"error":   err.Error(),
+		})
+		return
+	}
+
+	paymentService := service.NewPaymentService()
+	response, err := paymentService.CreateSubscription(&req)
+	if err != nil {
+		c.JSON(500, gin.H{
+			"success": false,
+			"message": "Failed to create subscription",
+			"error":   err.Error(),
+		})
+		return
+	}
+
+	c.JSON(200, response)
+}
+
+// 获取订阅详情
+func getSubscription(c *gin.Context) {
+	subscriptionID := c.Param("id")
+	if subscriptionID == "" {
+		c.JSON(400, gin.H{
+			"success": false,
+			"message": "subscription ID is required",
+		})
+		return
+	}
+
+	paymentService := service.NewPaymentService()
+	subscription, err := paymentService.GetSubscription(subscriptionID)
+	if err != nil {
+		c.JSON(500, gin.H{
+			"success": false,
+			"message": "Failed to get subscription",
+			"error":   err.Error(),
+		})
+		return
+	}
+
+	c.JSON(200, gin.H{
+		"success": true,
+		"data":    subscription,
+	})
+}
+
+// 取消订阅
+func cancelSubscription(c *gin.Context) {
+	subscriptionID := c.Param("id")
+	if subscriptionID == "" {
+		c.JSON(400, gin.H{
+			"success": false,
+			"message": "subscription ID is required",
+		})
+		return
+	}
+
+	paymentService := service.NewPaymentService()
+	response, err := paymentService.CancelSubscription(subscriptionID)
+	if err != nil {
+		c.JSON(500, gin.H{
+			"success": false,
+			"message": "Failed to cancel subscription",
+			"error":   err.Error(),
+		})
+		return
+	}
+
+	c.JSON(200, response)
+}
+
+// ================= Refund Handlers =================
+
+// 创建退款
+func createRefund(c *gin.Context) {
+	var req models.RefundRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(400, gin.H{
+			"success": false,
+			"message": "Invalid request parameters",
+			"error":   err.Error(),
+		})
+		return
+	}
+
+	paymentService := service.NewPaymentService()
+	response, err := paymentService.CreateRefund(&req)
+	if err != nil {
+		c.JSON(500, gin.H{
+			"success": false,
+			"message": "Failed to create refund",
+			"error":   err.Error(),
+		})
+		return
+	}
+
+	c.JSON(200, response)
+}
+
+// 获取退款详情
+func getRefund(c *gin.Context) {
+	refundID := c.Param("id")
+	if refundID == "" {
+		c.JSON(400, gin.H{
+			"success": false,
+			"message": "refund ID is required",
+		})
+		return
+	}
+
+	paymentService := service.NewPaymentService()
+	refund, err := paymentService.GetRefund(refundID)
+	if err != nil {
+		c.JSON(500, gin.H{
+			"success": false,
+			"message": "Failed to get refund",
+			"error":   err.Error(),
+		})
+		return
+	}
+
+	c.JSON(200, gin.H{
+		"success": true,
+		"data":    refund,
+	})
+}
+
+// ================= Demo Recording Handlers =================
+
+// 列出演示录制
+func listRecordings(c *gin.Context) {
+	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "50"))
+	offset, _ := strconv.Atoi(c.DefaultQuery("offset", "0"))
+
+	recordings, err := database.ListRecordings(limit, offset)
+	if err != nil {
+		c.JSON(500, gin.H{
+			"success": false,
+			"message": "Failed to list recordings",
+			"error":   err.Error(),
+		})
+		return
+	}
+
+	c.JSON(200, gin.H{
+		"success": true,
+		"data":    recordings,
+	})
+}
+
+// 保存演示录制
+func saveRecording(c *gin.Context) {
+	var req struct {
+		ID          string `json:"id"`
+		Name        string `json:"name"`
+		Description string `json:"description"`
+		Steps       []database.Step `json:"steps"`
+		Duration    int64  `json:"duration"`
+	}
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(400, gin.H{
+			"success": false,
+			"message": "Invalid request parameters",
+			"error":   err.Error(),
+		})
+		return
+	}
+
+	// Generate ID if not provided
+	if req.ID == "" {
+		req.ID = "rec_" + strconv.FormatInt(time.Now().UnixNano(), 36)
+	}
+
+	recording := &database.DemoRecording{
+		ID:          req.ID,
+		Name:        req.Name,
+		Description: req.Description,
+		Steps:       req.Steps,
+		Duration:    req.Duration,
+		CreatedAt:   time.Now(),
+		UpdatedAt:   time.Now(),
+	}
+
+	if err := database.SaveRecording(recording); err != nil {
+		c.JSON(500, gin.H{
+			"success": false,
+			"message": "Failed to save recording",
+			"error":   err.Error(),
+		})
+		return
+	}
+
+	c.JSON(200, gin.H{
+		"success": true,
+		"data":    recording,
+	})
+}
+
+// 获取演示录制详情
+func getRecording(c *gin.Context) {
+	id := c.Param("id")
+	if id == "" {
+		c.JSON(400, gin.H{
+			"success": false,
+			"message": "Recording ID is required",
+		})
+		return
+	}
+
+	recording, err := database.GetRecording(id)
+	if err != nil {
+		c.JSON(404, gin.H{
+			"success": false,
+			"message": "Recording not found",
+			"error":   err.Error(),
+		})
+		return
+	}
+
+	c.JSON(200, gin.H{
+		"success": true,
+		"data":    recording,
+	})
+}
+
+// 删除演示录制
+func deleteRecording(c *gin.Context) {
+	id := c.Param("id")
+	if id == "" {
+		c.JSON(400, gin.H{
+			"success": false,
+			"message": "Recording ID is required",
+		})
+		return
+	}
+
+	if err := database.DeleteRecording(id); err != nil {
+		c.JSON(500, gin.H{
+			"success": false,
+			"message": "Failed to delete recording",
+			"error":   err.Error(),
+		})
+		return
+	}
+
+	c.JSON(200, gin.H{
+		"success": true,
+		"message": "Recording deleted successfully",
 	})
 }

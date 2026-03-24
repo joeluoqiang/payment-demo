@@ -1,30 +1,55 @@
-# 支付集成演示网站
+# Payment Integration Demo
 
-这是一个完整的支付产品演示网站，展示了LinkPay、Drop-in和Direct API三种不同的支付集成方式。
+A complete payment product demo website showcasing three different payment integration methods: LinkPay, Drop-in, and Direct API.
 
-## 项目结构
+## Project Structure
 
 ```
-payment demo/
-├── frontend/          # React + TypeScript 前端
-├── backend/           # Go + Gin 后端
+payment-demo/
+├── frontend/          # React + TypeScript frontend
+├── backend/           # Go + Gin backend
 └── README.md
 ```
 
-## 功能特性
+## Features
 
-- 🌍 多国家/地区支持（全球、中国香港、韩国、日本、马来西亚、印尼、泰国、新加坡）
-- 🗣️ 多语言支持（英文、中文，可扩展）
-- 💰 多币种支持（USD、HKD、KRW、JPY、MYR、IDR、THB、SGD）
-- 🔄 三种支付方式：
-  - **LinkPay**: 重定向式支付链接
-  - **Drop-in**: 嵌入式支付组件
-  - **Direct API**: 直接API调用（包含3DS认证）
-- 🎯 多环境支持（UAT测试环境、生产环境）
+### Core Payment Features
+- 🌍 Multi-country/region support (Global, Hong Kong, Korea, Japan, Malaysia, Indonesia, Thailand, Singapore)
+- 💰 Multi-currency support (USD, HKD, KRW, JPY, MYR, IDR, THB, SGD)
+- 🔄 Three payment methods:
+  - **LinkPay**: Redirect payment link
+  - **Drop-in**: Embedded payment component
+  - **Direct API**: Direct API calls (including 3DS authentication)
+- 🎯 Multi-environment support (UAT test environment, Production environment)
 
-## 快速开始
+### Additional Features (Phase 2)
+- 📋 **Subscription Plans**: Set up recurring payments with flexible subscription plans
+  - Multiple plan tiers (Basic, Pro, Enterprise)
+  - Recurring billing management
+  - Easy subscription activation via Drop-in
+- 💸 **Refund Management**: Process refunds quickly and efficiently
+  - Support for partial and full refunds
+  - Real-time status tracking
+  - Detailed transaction history
 
-### 1. 启动后端服务
+### Developer Tools (Phase 3)
+- 🔧 **Developer Tools Panel**: Comprehensive debugging suite
+  - Request/Response viewer
+  - Error scenario simulator
+  - Integration code generator (React, Vue, Node.js, PHP)
+- 📱 **Mobile Preview**: Preview your payment flow on different devices
+  - iPhone, iPad, and Desktop presets
+  - Portrait/Landscape orientation toggle
+  - Full-screen preview mode
+- 🌐 **Region Selector**: Quick region switching with currency and payment method info
+- 🎥 **Demo Recorder**: Record and share demo sessions
+  - Step-by-step recording
+  - Shareable links for demos
+- 📊 **Flow Indicator**: Visualize the payment flow with role labels (Merchant/Evonet)
+
+## Getting Started
+
+### 1. Start Backend Service
 
 ```bash
 cd backend
@@ -32,9 +57,9 @@ go mod tidy
 go run cmd/server/main.go
 ```
 
-后端服务将在 http://localhost:8080 启动
+Backend service will start at http://localhost:8080
 
-### 2. 启动前端服务
+### 2. Start Frontend Service
 
 ```bash
 cd frontend
@@ -42,107 +67,176 @@ npm install
 npm run dev
 ```
 
-前端服务将在 http://localhost:5173 启动
+Frontend service will start at http://localhost:5173
 
-### 3. 访问应用
+### 3. Access the Application
 
-打开浏览器访问 http://localhost:5173
+Open browser and visit http://localhost:5173
 
-## 配置真实支付接口
+## Configuring Real Payment API
 
-### 获取API密钥
+### Get API Keys
 
-1. 访问 [Evonet开发者中心](https://developer.evonetonline.com/)
-2. 注册账户并获取KeyID和SignKey
-3. 在backend目录下复制.env.example为.env
-4. 填入你的API配置：
+1. Visit [Evonet Developer Center](https://developer.evonetonline.com/)
+2. Register account and get KeyID and SignKey
+3. Copy `.env.example` to `.env` in the backend directory
+4. Fill in your API configuration:
 
 ```bash
 cp backend/.env.example backend/.env
 ```
 
-编辑 `backend/.env` 文件：
+Edit `backend/.env` file:
 
 ```env
 EVONET_KEY_ID=your_actual_key_id
 EVONET_SIGN_KEY=your_actual_sign_key
 ```
 
-### API文档参考
+### API Documentation Reference
 
-- [Drop-in集成文档](https://developer.evonetonline.com/v2.0/docs/drop-in-integration-step-en)
-- [LinkPay集成文档](https://developer.evonetonline.com/v2.0/docs/linkpay-integration-step)
-- [Direct API集成文档](https://developer.evonetonline.com/v2.0/docs/direct-api-integration)
+- [Drop-in Integration](https://developer.evonetonline.com/v2.0/docs/drop-in-integration-step-en)
+- [LinkPay Integration](https://developer.evonetonline.com/v2.0/docs/linkpay-integration-step)
+- [Direct API Integration](https://developer.evonetonline.com/v2.0/docs/direct-api-integration)
 
-## 演示模式
+## Demo Mode
 
-如果没有配置真实的API密钥，系统将运行在演示模式下，返回模拟的支付响应，方便开发和测试。
+If real API keys are not configured, the system will run in demo mode, returning simulated payment responses for development and testing.
 
-## 技术栈
+## Tech Stack
 
-### 前端
+### Frontend
 - React 18 + TypeScript
-- Vite (构建工具)
-- Ant Design (UI组件库)
-- React Router (路由)
-- React i18next (国际化)
-- Axios (HTTP客户端)
+- Vite (Build tool)
+- Ant Design (UI component library)
+- React Router (Routing)
+- Axios (HTTP client)
 
-### 后端
+### Backend
 - Go 1.21+
-- Gin (Web框架)
-- 标准库(net/http, crypto等)
+- Gin (Web framework)
+- SQLite (Demo recordings storage)
+- Standard library (net/http, crypto, etc.)
 
-## 开发说明
+## Development Guide
 
-### 目录结构
+### Directory Structure
 
-**前端 (frontend/)**
+**Frontend (frontend/)**
 ```
 src/
-├── components/        # 可复用组件
-├── pages/            # 页面组件
-├── hooks/            # 自定义Hooks
-├── services/         # API服务
-├── locales/          # 国际化文件
-├── types/            # TypeScript类型定义
-├── context/          # React Context
-└── utils/            # 工具函数
+├── components/        # Reusable components
+│   ├── DemoRecorder.tsx     # Demo recording component
+│   ├── MobilePreview.tsx    # Mobile preview component
+│   ├── RegionSelector.tsx   # Region selector component
+│   ├── DeveloperTools.tsx   # Developer tools panel
+│   ├── DevPanel.tsx         # Request/Response viewer
+│   ├── ErrorSimulator.tsx   # Error scenario simulator
+│   ├── CodeGenerator.tsx    # Integration code generator
+│   ├── FlowIndicator.tsx    # Payment flow indicator
+│   └── RoleLabel.tsx        # Role labels (Merchant/Evonet)
+├── pages/              # Page components
+│   ├── HomePage.tsx         # Landing page with scenarios
+│   ├── PaymentPage.tsx      # Payment flow page
+│   ├── PaymentResultPage.tsx# Payment result page
+│   ├── SubscriptionPage.tsx # Subscription plans page
+│   └── RefundPage.tsx       # Refund management page
+├── hooks/              # Custom Hooks
+├── services/           # API services
+├── types/              # TypeScript type definitions
+├── context/            # React Context
+└── utils/              # Utility functions
 ```
 
-**后端 (backend/)**
+**Backend (backend/)**
 ```
-cmd/server/           # 应用入口
-config/              # 配置管理
+cmd/server/           # Application entry point
+config/              # Configuration management
 internal/
-├── api/             # HTTP路由和处理器
-├── service/         # 业务逻辑
-├── models/          # 数据模型
-└── utils/           # 工具函数
+├── api/             # HTTP routes and handlers
+├── service/         # Business logic
+├── models/          # Data models
+├── database/        # SQLite database for demo recordings
+└── utils/           # Utility functions
 ```
 
-### 添加新支付方式
+### Adding New Payment Methods
 
-1. 在 `backend/internal/models/models.go` 中添加新的支付方式结构
-2. 在 `backend/internal/service/payment.go` 中实现支付逻辑
-3. 在 `frontend/src/pages/PaymentPage.tsx` 中添加前端支持
-4. 更新场景配置和多语言文件
+1. Add new payment method structure in `backend/internal/models/models.go`
+2. Implement payment logic in `backend/internal/service/payment.go`
+3. Add frontend support in `frontend/src/pages/PaymentPage.tsx`
+4. Update scenario configuration
 
-### 添加新语言
+## Deployment
 
-1. 在 `frontend/src/locales/` 中添加新的语言文件
-2. 更新 `frontend/src/locales/index.ts` 中的配置
-3. 在 `frontend/src/hooks/useAppState.ts` 中更新语言映射
+### Frontend Deployment (Vercel)
+1. Connect your repository to Vercel
+2. Set root directory to `frontend`
+3. Configure environment variables:
+   - `VITE_API_BASE_URL`: Your backend API URL
 
-## 注意事项
+### Backend Deployment (Render)
+1. Connect your repository to Render
+2. Set root directory to `backend`
+3. Configure environment variables:
+   - `EVONET_KEY_ID`: Your Evonet API Key ID
+   - `EVONET_SIGN_KEY`: Your Evonet Sign Key
+   - `EVONET_UAT_KEY_ID`: UAT environment Key ID (optional)
+   - `EVONET_UAT_SIGN_KEY`: UAT environment Sign Key (optional)
 
-- 测试卡号：4895330111111119 (有效期：12/31, CVV：390)
-- UAT环境用于测试，生产环境用于真实交易
-- 确保在生产环境中正确配置webhook URL
-- 支付成功后会触发webhook通知，需要返回"SUCCESS"确认
+## Testing
 
-## 支持与帮助
+### Run Frontend Tests
+```bash
+cd frontend
+npm test
+```
 
-如有问题，请参考：
-- [Evonet API文档](https://developer.evonetonline.com/v2.0/)
-- [技术支持联系方式](https://developer.evonetonline.com/contact)
+### Run Frontend Build
+```bash
+cd frontend
+npm run build
+```
+
+### Run Backend
+```bash
+cd backend
+go run cmd/server/main.go
+```
+
+## Important Notes
+
+- Test card number: 4895330111111119 (Expiry: 12/31, CVV: 390)
+- UAT environment for testing, Production environment for real transactions
+- Ensure webhook URL is correctly configured in production
+- After successful payment, webhook notification will be triggered, return "SUCCESS" to confirm
+
+## API Endpoints
+
+### Payment APIs
+- `POST /api/v1/payment/interaction` - Create payment interaction (LinkPay/Drop-in)
+- `POST /api/v1/payment/direct` - Create direct payment
+- `GET /api/v1/payment/:merchantTransId` - Get payment status
+- `GET /api/v1/interaction/:merchantOrderId` - Get interaction status
+
+### Subscription APIs
+- `GET /api/v1/subscription/plans` - Get subscription plans
+- `POST /api/v1/subscription` - Create subscription
+- `GET /api/v1/subscription/:id` - Get subscription details
+- `POST /api/v1/subscription/:id/cancel` - Cancel subscription
+
+### Refund APIs
+- `POST /api/v1/refund` - Create refund
+- `GET /api/v1/refund/:id` - Get refund details
+
+### Demo Recording APIs
+- `GET /api/v1/recordings` - List demo recordings
+- `POST /api/v1/recordings` - Save demo recording
+- `GET /api/v1/recordings/:id` - Get recording details
+- `DELETE /api/v1/recordings/:id` - Delete recording
+
+## Support
+
+For questions, please refer to:
+- [Evonet API Documentation](https://developer.evonetonline.com/v2.0/)
+- [Technical Support](https://developer.evonetonline.com/contact)

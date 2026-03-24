@@ -1,0 +1,85 @@
+/* DeveloperTools Component Styles */
+
+.developer-tools-trigger {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 20px;
+  box-shadow: var(--shadow-lg, 0 10px 15px -3px rgba(0, 0, 0, 0.1));
+  transition: all var(--transition-normal, 0.3s ease-out);
+}
+
+.developer-tools-trigger:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-xl, 0 20px 25px -5px rgba(0, 0, 0, 0.1));
+}
+
+.developer-tools-badge {
+  margin-left: 4px;
+}
+
+/* Drawer Header */
+.developer-tools-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.developer-tools-header__icon {
+  font-size: 18px;
+  color: var(--evonet-primary, #1890ff);
+}
+
+/* Drawer Styles */
+.developer-tools-drawer .ant-drawer-body {
+  display: flex;
+  flex-direction: column;
+  height: calc(100% - 55px);
+}
+
+.developer-tools-tabs {
+  height: 100%;
+}
+
+.developer-tools-tabs .ant-tabs-content {
+  height: 100%;
+}
+
+.developer-tools-tabs .ant-tabs-tabpane {
+  height: 100%;
+  overflow: auto;
+  padding: var(--spacing-md, 16px);
+}
+
+/* Tab Styles */
+.developer-tools-tabs .ant-tabs-tab {
+  padding: 8px 16px;
+  gap: 6px;
+}
+
+.developer-tools-tabs .ant-tabs-tab .anticon {
+  margin-right: 4px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .developer-tools-trigger {
+    right: 16px;
+    bottom: 16px;
+    padding: 6px 12px;
+    font-size: 13px;
+  }
+
+  .developer-tools-drawer {
+    width: 100% !important;
+  }
+
+  .developer-tools-drawer .ant-drawer-body {
+    padding: 0;
+  }
+}
