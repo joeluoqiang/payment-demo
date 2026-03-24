@@ -23,6 +23,71 @@ vi.mock('../services/api', () => ({
       environments: ['sandbox', 'production'],
     }),
     switchEnvironment: vi.fn().mockResolvedValue({ success: true }),
+    createInteraction: vi.fn().mockResolvedValue({
+      success: true,
+      sessionId: 'test-session-id',
+      merchantTransId: 'test-merchant-trans-id',
+      status: 'pending',
+      message: 'Payment initiated',
+    }),
+    createDirectPayment: vi.fn().mockResolvedValue({
+      success: true,
+      merchantTransId: 'test-merchant-trans-id',
+      status: 'success',
+      message: 'Payment successful',
+    }),
+    getPaymentStatus: vi.fn().mockResolvedValue({
+      merchantTransId: 'test-merchant-trans-id',
+      status: 'success',
+      amount: 100,
+      currency: 'USD',
+    }),
+    getInteractionStatus: vi.fn().mockResolvedValue({
+      merchantOrderId: 'test-merchant-order-id',
+      status: 'success',
+    }),
+    // Subscription APIs
+    getSubscriptionPlans: vi.fn().mockResolvedValue([
+      { id: 'basic', name: 'Basic Plan', description: 'Basic plan', price: 9.99, currency: 'USD', interval: 'monthly', features: ['Feature 1'] },
+      { id: 'pro', name: 'Pro Plan', description: 'Pro plan', price: 19.99, currency: 'USD', interval: 'monthly', features: ['Feature 1', 'Feature 2'] },
+    ]),
+    createSubscription: vi.fn().mockResolvedValue({
+      success: true,
+      sessionId: 'test-session-id',
+      merchantTransId: 'test-sub-trans-id',
+      status: 'pending',
+      message: 'Subscription created',
+    }),
+    getSubscription: vi.fn().mockResolvedValue({
+      id: 'test-sub-id',
+      merchantTransId: 'test-sub-trans-id',
+      status: 'active',
+    }),
+    cancelSubscription: vi.fn().mockResolvedValue({
+      success: true,
+      subscriptionId: 'test-sub-id',
+      status: 'cancelled',
+      message: 'Subscription cancelled',
+    }),
+    // Refund APIs
+    createRefund: vi.fn().mockResolvedValue({
+      success: true,
+      refundId: 'test-refund-id',
+      refundTransId: 'test-refund-trans-id',
+      merchantTransId: 'test-merchant-trans-id',
+      status: 'success',
+      message: 'Refund processed',
+      amount: 100,
+      currency: 'USD',
+    }),
+    getRefund: vi.fn().mockResolvedValue({
+      id: 'test-refund-id',
+      merchantTransId: 'test-merchant-trans-id',
+      refundTransId: 'test-refund-trans-id',
+      status: 'success',
+      amount: 100,
+      currency: 'USD',
+    }),
   },
 }));
 

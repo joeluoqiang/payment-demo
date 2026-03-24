@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
-import FlowIndicator, { FlowStep } from '../components/FlowIndicator';
+import FlowIndicator, { type FlowStep } from '../components/FlowIndicator';
 
 describe('FlowIndicator', () => {
   const defaultSteps: FlowStep[] = [
@@ -127,7 +127,6 @@ describe('FlowIndicator', () => {
         <FlowIndicator steps={defaultSteps} currentStep="step1" />
       );
 
-      const lastStep = container.querySelectorAll('.flow-step')[2];
       const connectors = container.querySelectorAll('.flow-connector');
       // 3 steps should have 2 connectors, so last step has no connector after it
       expect(connectors.length).toBe(2);

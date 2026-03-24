@@ -137,4 +137,4 @@ export interface RefundResponse {
 
 // ================= Scenario Type =================
 
-export type ScenarioType = 'payment' | 'subscription' | 'refund';
+export type ScenarioType = 'payment' | 'subscription' | 'refund' | 'error';

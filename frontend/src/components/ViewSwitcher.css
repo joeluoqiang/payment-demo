@@ -1,0 +1,56 @@
+.view-switcher {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 16px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  backdrop-filter: blur(8px);
+}
+
+.view-switcher__icon {
+  font-size: 16px;
+  color: rgba(255, 255, 255, 0.5);
+  transition: color 0.3s ease;
+}
+
+.view-switcher__icon--active {
+  color: #1890ff;
+}
+
+.view-switcher__switch {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.view-switcher__switch.ant-switch-checked {
+  background: #1890ff;
+}
+
+.view-switcher__label {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 500;
+  min-width: 120px;
+}
+
+/* Dark theme support */
+.view-switcher--dark {
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.view-switcher--dark .view-switcher__label {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+/* Responsive */
+@media (max-width: 576px) {
+  .view-switcher {
+    padding: 6px 12px;
+    gap: 8px;
+  }
+
+  .view-switcher__label {
+    font-size: 12px;
+    min-width: auto;
+  }
+}

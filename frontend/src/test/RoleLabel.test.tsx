@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import RoleLabel, { RoleType } from '../components/RoleLabel';
+import RoleLabel from '../components/RoleLabel';
 
 describe('RoleLabel', () => {
   describe('Component Rendering', () => {

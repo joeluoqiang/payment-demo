@@ -1,17 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import { Card, Form, Input, Button, Row, Col, Typography, Space, Alert, Divider, Tag, Steps, Switch, Select } from 'antd';
 import { useNavigate } from 'react-router-dom';
-import { 
-  ArrowLeftOutlined, 
-  CreditCardOutlined, 
+import {
+  ArrowLeftOutlined,
+  CreditCardOutlined,
   ShoppingCartOutlined,
   SafetyOutlined,
   CheckCircleOutlined,
   LockOutlined,
-  CheckOutlined
+  CheckOutlined,
+  ToolOutlined,
 } from '@ant-design/icons';
-import type { PaymentRequest, Country, PaymentScenario } from '../types';
+import type { PaymentRequest, Country, PaymentScenario, ScenarioType } from '../types';
 import DropInComponent from '../components/DropInComponent';
+import RoleLabel from '../components/RoleLabel';
+import FlowIndicator from '../components/FlowIndicator';
+import ViewSwitcher from '../components/ViewSwitcher';
+import ScenarioSelector from '../components/ScenarioSelector';
+import DeveloperTools from '../components/DeveloperTools';
 import { apiService } from '../services/api';
 import { useApp } from '../context/AppContext';
 
@@ -54,6 +60,10 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ country, scenario }) => {
   const [currentStep, setCurrentStep] = useState(0);
   const [currentOrderId, setCurrentOrderId] = useState<string>(''); // 存储当前的订单ID
   const { config } = useApp(); // 获取当前环境配置
+  const [devToolsVisible, setDevToolsVisible] = useState(false);
+  const [requestData, setRequestData] = useState<any>(null);
+  const [responseData, setResponseData] = useState<any>(null);
+  const [selectedScenarioType, setSelectedScenarioType] = useState<ScenarioType>('payment');
   
   // 自定义金额和币种状态
   const [useCustomAmount, setUseCustomAmount] = useState(false);
@@ -149,6 +159,19 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ country, scenario }) => {
   const currentCurrency = getCurrentCurrency();
   const currentTotal = getCurrentTotal();
 
+  // Flow steps for FlowIndicator
+  const flowSteps = [
+    { id: 'order', label: 'Order Review', role: 'merchant' as const, description: 'Review order details' },
+    { id: 'payment', label: 'Payment', role: 'evonet' as const, description: 'Process payment' },
+    { id: 'confirmation', label: 'Confirmation', role: 'merchant' as const, description: 'Payment complete' },
+  ];
+
+  const getFlowStepId = () => {
+    if (currentStep === 0) return 'order';
+    if (currentStep === 1) return 'payment';
+    return 'confirmation';
+  };
+
   const handleSubmit = async (values: any) => {
     // 强制重置所有状态，确保全新开始
     console.log('开始新的支付流程，当前订单ID:', currentOrderId);
@@ -183,6 +206,8 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ country, scenario }) => {
         webhookUrl: `${API_BASE_URL}/api/v1/payment/webhook`,
       };
 
+      setRequestData(paymentRequest);
+
       let response;
 
       if (scenario.type === 'directapi') {
@@ -200,6 +225,7 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ country, scenario }) => {
 
       console.log('支付请求成功响应:', response);
       setResult(response);
+      setResponseData(response);
       setCurrentStep(2);
 
       // 如果是 LinkPay，直接重定向到支付链接
@@ -516,7 +542,7 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ country, scenario }) => {
           >
             Back
           </Button>
-          
+
           <div className="page-title">
             <Title level={2} style={{ margin: 0, color: 'white' }}>
               Checkout - {scenario.name || scenario.type}
@@ -525,7 +551,35 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ country, scenario }) => {
               {country.name || country.code} • {country.currency}
             </Text>
           </div>
+
+          <Space size="middle">
+            <ViewSwitcher />
+            <Button
+              type="default"
+              icon={<ToolOutlined />}
+              onClick={() => setDevToolsVisible(true)}
+              className="dev-tools-button"
+            >
+              Dev Tools
+            </Button>
+          </Space>
         </div>
+
+        {/* 场景选择器 */}
+        <ScenarioSelector
+          value={selectedScenarioType}
+          onChange={setSelectedScenarioType}
+          showDescriptions={false}
+          className="scenario-selector-wrapper"
+        />
+
+        {/* 流程指示器 */}
+        <Card className="flow-card">
+          <FlowIndicator
+            steps={flowSteps}
+            currentStep={getFlowStepId()}
+          />
+        </Card>
 
         {/* 进度步骤 */}
         {renderPaymentSteps()}
@@ -533,11 +587,13 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ country, scenario }) => {
         {/* 主要内容区域 */}
         <Row gutter={[24, 24]} className="payment-row">
           {/* 左侧 - 支付表单 */}
-          <Col 
-            xs={24} 
-            lg={14} 
+          <Col
+            xs={24}
+            lg={14}
           >
             <Space direction="vertical" size="large" style={{ width: '100%' }}>
+              <RoleLabel role="merchant" className="section-role-label" />
+
               {error && (
                 <Alert
                   message="Error"
@@ -574,6 +630,7 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ country, scenario }) => {
 
               {scenario.type === 'dropin' && result?.sessionId && (
                 <Card title="Complete Your Payment" className="dropin-card">
+                  <RoleLabel role="evonet" className="section-role-label" />
                   <Alert
                     message="Secure Payment"
                     description="Your payment will be processed securely using DROPIN integration."
@@ -614,13 +671,21 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ country, scenario }) => {
           </Col>
 
           {/* 右侧 - 订单摘要 */}
-          <Col 
-            xs={24} 
-            lg={10} 
+          <Col
+            xs={24}
+            lg={10}
           >
             {renderOrderSummary()}
           </Col>
         </Row>
+
+        {/* Developer Tools Drawer */}
+        <DeveloperTools
+          visible={devToolsVisible}
+          onVisibleChange={setDevToolsVisible}
+          requestData={requestData}
+          responseData={responseData}
+        />
       </div>
     </div>
   );
