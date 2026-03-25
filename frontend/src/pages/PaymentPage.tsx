@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Form, Input, Button, Row, Col, Typography, Space, Alert, Divider, Tag, Steps, Switch, Select } from 'antd';
+import { Card, Form, Input, Button, Row, Col, Typography, Space, Alert, Divider, Tag, Steps, Switch, Select, message } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import {
   ArrowLeftOutlined,
@@ -18,6 +18,8 @@ import FlowIndicator from '../components/FlowIndicator';
 import ViewSwitcher from '../components/ViewSwitcher';
 import ScenarioSelector from '../components/ScenarioSelector';
 import DeveloperTools from '../components/DeveloperTools';
+import TestCardsPanel from '../components/TestCardsPanel';
+import PaymentMethodTabs from '../components/PaymentMethodTabs';
 import { apiService } from '../services/api';
 import { useApp } from '../context/AppContext';
 
@@ -70,6 +72,9 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ country, scenario }) => {
   const [customAmount, setCustomAmount] = useState<number>(0);
   const [customCurrency, setCustomCurrency] = useState<string>(country.currency);
   
+  // 支付方式选择
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<string>('card');
+  
   // 预设币种选项
   const currencyOptions = [
     { value: 'USD', label: 'USD - US Dollar' },
@@ -121,6 +126,14 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ country, scenario }) => {
   useEffect(() => {
     setCustomCurrency(country.currency);
   }, [country.currency]);
+
+  // 处理测试卡号填充
+  const handleFillTestCard = (cardNumber: string) => {
+    form.setFieldsValue({
+      cardNumber: cardNumber,
+    });
+    message.success('测试卡号已填入');
+  };
 
   // 计算订单总额
   const calculateTotal = () => {
@@ -627,6 +640,14 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ country, scenario }) => {
               )}
 
               {!result && renderPaymentForm()}
+              
+              {/* Drop-in 支付方式选择器 */}
+              {scenario.type === 'dropin' && !result && (
+                <PaymentMethodTabs
+                  selectedMethod={selectedPaymentMethod}
+                  onMethodSelect={setSelectedPaymentMethod}
+                />
+              )}
 
               {scenario.type === 'dropin' && result?.sessionId && (
                 <Card title="Complete Your Payment" className="dropin-card">
@@ -686,6 +707,14 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ country, scenario }) => {
           requestData={requestData}
           responseData={responseData}
         />
+        
+        {/* 测试卡号面板 - 仅在 Direct API 模式下显示 */}
+        {scenario.type === 'directapi' && (
+          <TestCardsPanel 
+            onFillCard={handleFillTestCard}
+            visible={!result}
+          />
+        )}
       </div>
     </div>
   );

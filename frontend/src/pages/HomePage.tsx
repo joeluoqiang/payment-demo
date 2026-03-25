@@ -25,23 +25,26 @@ interface HomePageProps {
 const scenarioConfigsByType = {
   linkpay: {
     icon: <ShoppingCartOutlined />,
-    color: '#0275DD',
-    bgGradient: 'linear-gradient(135deg, #0275DD 0%, #054D8E 100%)',
+    color: '#4A90E2',
+    bgGradient: 'linear-gradient(135deg, #4A90E2 0%, #2E5F8A 100%)',
     image: '/api/placeholder/300/200',
+    slogan: '跳转式支付，快速集成',
     features: ['One-click payment', 'Mobile optimized', 'Multi-currency']
   },
   dropin: {
     icon: <CreditCardOutlined />,
-    color: '#4ADAFC',
-    bgGradient: 'linear-gradient(135deg, #4ADAFC 0%, #0275DD 100%)',
+    color: '#50C878',
+    bgGradient: 'linear-gradient(135deg, #50C878 0%, #2E8B57 100%)',
     image: '/api/placeholder/300/200',
+    slogan: '嵌入式组件，灵活定制',
     features: ['Embedded UI', 'Multiple methods', 'Real-time validation']
   },
   directapi: {
     icon: <ApiOutlined />,
-    color: '#48E5CE',
-    bgGradient: 'linear-gradient(135deg, #48E5CE 0%, #4ADAFC 100%)',
+    color: '#FF6B35',
+    bgGradient: 'linear-gradient(135deg, #FF6B35 0%, #CC5529 100%)',
     image: '/api/placeholder/300/200',
+    slogan: '完全自定义，掌控全局',
     features: ['Full control', 'Custom UI', 'Advanced integration']
   }
 };
@@ -262,10 +265,22 @@ const HomePage: React.FC<HomePageProps> = () => {
                         {scenario.name || scenario.type}
                       </Title>
                       
+                      <div className="scenario-slogan" style={{ 
+                        color: config.color, 
+                        fontSize: '13px', 
+                        fontWeight: 500,
+                        marginBottom: '12px',
+                        padding: '6px 0',
+                        borderBottom: `2px solid ${config.color}`,
+                        borderImage: `linear-gradient(90deg, ${config.color} 0%, transparent 100%) 1`
+                      }}>
+                        {config.slogan}
+                      </div>
+                      
                       <ul className="scenario-features">
                         {config.features.map((feature, idx) => (
                           <li key={idx} className="feature-item">
-                            <span className="feature-dot"></span>
+                            <span className="feature-dot" style={{ background: config.color }}></span>
                             {feature}
                           </li>
                         ))}
@@ -276,6 +291,7 @@ const HomePage: React.FC<HomePageProps> = () => {
                         block
                         className="scenario-button"
                         icon={<LinkOutlined />}
+                        style={{ background: config.color, borderColor: config.color }}
                       >
                         Try Demo
                       </Button>

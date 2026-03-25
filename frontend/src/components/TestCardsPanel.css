@@ -1,0 +1,149 @@
+/* TestCardsPanel.css */
+
+.test-cards-panel {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  z-index: 1000;
+  max-width: 320px;
+  background: rgba(255, 255, 255, 0.98);
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+.test-cards-panel.collapsed {
+  max-width: 200px;
+}
+
+.test-cards-panel .panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background: linear-gradient(135deg, #1890ff 0%, #096dd9 100%);
+  color: white;
+  cursor: pointer;
+  user-select: none;
+}
+
+.test-cards-panel .panel-header:hover {
+  background: linear-gradient(135deg, #40a9ff 0%, #1890ff 100%);
+}
+
+.test-cards-panel .panel-icon {
+  font-size: 18px;
+}
+
+.test-cards-panel .panel-title {
+  color: white;
+  font-size: 14px;
+}
+
+.test-cards-panel .collapse-btn {
+  color: white;
+}
+
+.test-cards-panel .collapse-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.test-cards-panel .panel-content {
+  padding: 12px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.test-cards-panel .test-card-item {
+  margin-bottom: 12px;
+  padding: 10px;
+  background: #fafafa;
+  border-radius: 8px;
+  border: 1px solid #f0f0f0;
+  transition: all 0.2s ease;
+}
+
+.test-cards-panel .test-card-item:hover {
+  background: #f5f5f5;
+  border-color: #e0e0e0;
+}
+
+.test-cards-panel .test-card-item:last-child {
+  margin-bottom: 0;
+}
+
+.test-cards-panel .card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.test-cards-panel .card-number-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.test-cards-panel .card-number {
+  flex: 1;
+  padding: 8px 10px;
+  background: white;
+  border-radius: 6px;
+  font-family: 'Courier New', monospace;
+  font-size: 13px;
+  letter-spacing: 0.5px;
+}
+
+.test-cards-panel .card-actions {
+  flex-shrink: 0;
+}
+
+.test-cards-panel .panel-footer {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid #f0f0f0;
+  text-align: center;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .test-cards-panel {
+    right: 10px;
+    bottom: 10px;
+    left: 10px;
+    max-width: none;
+    width: auto;
+  }
+
+  .test-cards-panel.collapsed {
+    max-width: none;
+  }
+
+  .test-cards-panel .panel-content {
+    max-height: 300px;
+  }
+}
+
+/* 小屏幕时显示为底部抽屉 */
+@media (max-width: 480px) {
+  .test-cards-panel {
+    right: 8px;
+    bottom: 8px;
+    left: 8px;
+    border-radius: 8px;
+  }
+
+  .test-cards-panel .test-card-item {
+    padding: 8px;
+  }
+
+  .test-cards-panel .card-number {
+    font-size: 12px;
+    padding: 6px 8px;
+  }
+}
