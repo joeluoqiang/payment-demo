@@ -1151,12 +1151,143 @@ body {
   .logo-text {
     font-size: 24px;
   }
-  
+
   .hero-title {
     font-size: 2rem !important;
   }
-  
+
   .hero-subtitle {
     font-size: 1rem !important;
   }
+}
+
+/* 订阅套餐卡片样式 */
+.plan-card {
+  height: 100%;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+  background: rgba(255, 255, 255, 0.95) !important;
+}
+
+.plan-card:hover {
+  border-color: var(--primary-color);
+  box-shadow: 0 10px 30px rgba(2, 117, 221, 0.2) !important;
+}
+
+.plan-card.selected {
+  border-color: var(--primary-color);
+  background: rgba(2, 117, 221, 0.05) !important;
+}
+
+.plan-header {
+  text-align: center;
+  padding: 16px 0;
+}
+
+.plan-icon {
+  font-size: 32px;
+  color: var(--primary-color);
+  margin-bottom: 8px;
+}
+
+.plan-price {
+  margin-top: 12px;
+}
+
+.plan-price .price-amount {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--primary-color);
+}
+
+.plan-price .price-interval {
+  font-size: 14px;
+  color: var(--gray-500);
+}
+
+.plan-description {
+  color: var(--gray-600);
+  text-align: center;
+}
+
+.plan-select {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+/* 分类选择器样式 */
+.category-selector {
+  display: flex;
+  justify-content: center;
+}
+
+.category-selector .ant-segmented {
+  background: rgba(255, 255, 255, 0.15) !important;
+  backdrop-filter: blur(10px);
+  border-radius: 30px;
+}
+
+.category-selector .ant-segmented-item {
+  color: rgba(255, 255, 255, 0.8) !important;
+  border-radius: 26px;
+}
+
+.category-selector .ant-segmented-item-selected {
+  background: var(--primary-color) !important;
+  color: white !important;
+}
+
+/* 后续订阅支付卡片样式 */
+.recurring-payment-card {
+  background: rgba(255, 255, 255, 0.98) !important;
+  border-radius: 16px !important;
+  box-shadow: var(--shadow-lg) !important;
+}
+
+.recurring-payment-card .ant-card-head {
+  background: linear-gradient(135deg, #0275DD 0%, #054D8E 100%);
+  color: white !important;
+  border-radius: 16px 16px 0 0 !important;
+}
+
+.recurring-payment-card .ant-card-head-title {
+  color: white !important;
+}
+
+/* 订阅按钮样式 */
+.subscribe-button {
+  height: 50px !important;
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  background: linear-gradient(135deg, #0275DD 0%, #054D8E 100%) !important;
+  border: none !important;
+  border-radius: 12px !important;
+}
+
+.subscribe-button:hover {
+  background: linear-gradient(135deg, #4ADAFC 0%, #0275DD 100%) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 8px 20px rgba(2, 117, 221, 0.3) !important;
+}
+
+/* 订阅支付页面样式 */
+.plans-selection-card {
+  border-radius: 16px !important;
+  background: rgba(255, 255, 255, 0.95) !important;
+  margin-top: 24px !important;
+}
+
+.subscribe-action-card {
+  border-radius: 16px !important;
+  background: rgba(255, 255, 255, 0.95) !important;
+  margin-top: 24px !important;
+}
+
+.selected-plan-info {
+  text-align: center;
+  padding: 16px 0;
 }

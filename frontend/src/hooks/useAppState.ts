@@ -3,13 +3,15 @@ import type { Country, PaymentScenario, AppState } from '../types';
 import { apiService } from '../services/api';
 
 export const useAppState = () => {
-  
+
   const [state, setState] = useState<AppState>({
     selectedCountry: null,
     selectedScenario: null,
     countries: [],
     scenarios: [],
     language: 'en',
+    paymentCategory: 'one-time',
+    selectedPlan: null,
   });
   
   const [loading, setLoading] = useState(false);

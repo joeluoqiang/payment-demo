@@ -1,19 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import { Card, Form, Input, Button, Row, Col, Typography, Space, Alert, Divider, Tag, Steps, Switch, Select } from 'antd';
 import { useNavigate } from 'react-router-dom';
-import { 
-  ArrowLeftOutlined, 
-  CreditCardOutlined, 
+import {
+  ArrowLeftOutlined,
+  CreditCardOutlined,
   ShoppingCartOutlined,
   SafetyOutlined,
   CheckCircleOutlined,
   LockOutlined,
-  CheckOutlined
+  CheckOutlined,
+  CodeOutlined
 } from '@ant-design/icons';
 import type { PaymentRequest, Country, PaymentScenario } from '../types';
 import DropInComponent from '../components/DropInComponent';
+import DeveloperPanel from '../components/DeveloperPanel';
 import { apiService } from '../services/api';
 import { useApp } from '../context/AppContext';
+import { useDeveloperMode } from '../context/DeveloperModeContext';
 
 // 从API_BASE_URL获取后端域名，用于构建webhook URL
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
@@ -54,7 +57,8 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ country, scenario }) => {
   const [currentStep, setCurrentStep] = useState(0);
   const [currentOrderId, setCurrentOrderId] = useState<string>(''); // 存储当前的订单ID
   const { config } = useApp(); // 获取当前环境配置
-  
+  const { enabled: devModeEnabled, setEnabled: setDevModeEnabled, setPendingRedirect, setSessionId } = useDeveloperMode();
+
   // 自定义金额和币种状态
   const [useCustomAmount, setUseCustomAmount] = useState(false);
   const [customAmount, setCustomAmount] = useState<number>(0);
@@ -99,12 +103,15 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ country, scenario }) => {
     // 立即生成新的订单ID
     const newOrderId = generateMerchantTransId();
     setCurrentOrderId(newOrderId);
-    console.log('为新的支付流程生成订单ID:', newOrderId);
+    console.log('[PaymentPage] 为新的支付流程生成订单ID:', newOrderId);
+    console.log('[PaymentPage] 设置sessionId到开发者模式上下文');
     // 重置表单
     form.resetFields();
     // 重置自定义金额设置
     setUseCustomAmount(false);
     setCustomAmount(0);
+    // 设置开发者模式的sessionId
+    setSessionId(newOrderId);
   }, [scenario.id]); // 移除form依赖，防止无限循环
 
   // 当国家变化时，更新自定义币种的默认值
@@ -152,7 +159,8 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ country, scenario }) => {
   const handleSubmit = async (values: any) => {
     // 强制重置所有状态，确保全新开始
     console.log('开始新的支付流程，当前订单ID:', currentOrderId);
-    
+    console.log('[PaymentPage] devModeEnabled:', devModeEnabled);
+
     // 记录用户点击支付按钮的日志，特别是dropin类型
     if (scenario.type === 'dropin') {
       console.log('[DropIn] 用户点击了体验dropin支付流程按钮');
@@ -160,7 +168,7 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ country, scenario }) => {
       console.log('[DropIn] 当前环境:', scenario.environment);
       console.log('[DropIn] 支付金额:', currentCurrency, currentTotal);
     }
-    
+
     setResult(null);
     setError(null);
     setCurrentStep(1);
@@ -169,17 +177,18 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ country, scenario }) => {
     try {
       // 使用预生成的订单ID，如果没有则生成新的
       const merchantTransId = currentOrderId || generateMerchantTransId();
+      console.log('[PaymentPage] 使用merchantTransId:', merchantTransId, 'currentOrderId:', currentOrderId);
       const baseUrl = window.location.origin;
-      
+
       console.log('使用订单ID创建支付请求 - merchantTransId:', merchantTransId);
       console.log('当前时间戳:', Date.now(), '，性能时间:', performance.now());
-      
+
       const paymentRequest: PaymentRequest = {
         amount: currentTotal,
         currency: currentCurrency,
         merchantTransId,
         paymentType: scenario.type,
-        returnUrl: `${baseUrl}/payment-result?orderId=${merchantTransId}&paymentType=${scenario.type}&amount=${currentTotal}&currency=${currentCurrency}`,
+        returnUrl: `${baseUrl}/payment-result?orderId=${merchantTransId}&paymentType=${scenario.type}&amount=${currentTotal}&currency=${currentCurrency}${devModeEnabled ? '&devMode=true' : ''}`,
         webhookUrl: `${API_BASE_URL}/api/v1/payment/webhook`,
       };
 
@@ -202,9 +211,13 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ country, scenario }) => {
       setResult(response);
       setCurrentStep(2);
 
-      // 如果是 LinkPay，直接重定向到支付链接
+      // 如果是 LinkPay，处理跳转
       if (scenario.type === 'linkpay' && response.linkUrl) {
-        window.location.href = response.linkUrl;
+        if (devModeEnabled) {
+          setPendingRedirect({ url: response.linkUrl, label: 'Go to Payment Page' });
+        } else {
+          window.location.href = response.linkUrl;
+        }
         return;
       }
 
@@ -212,7 +225,11 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ country, scenario }) => {
       if (scenario.type === 'directapi' && response.action && response.action.type === 'threeDSRedirect') {
         const threeDSUrl = response.action.data.threeDSData?.url;
         if (threeDSUrl) {
-          window.location.href = threeDSUrl;
+          if (devModeEnabled) {
+            setPendingRedirect({ url: threeDSUrl, label: 'Proceed to 3DS Authentication' });
+          } else {
+            window.location.href = threeDSUrl;
+          }
           return;
         }
       }
@@ -482,7 +499,17 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ country, scenario }) => {
               {loading ? 'Processing payment...' : `Pay ${currentCurrency} ${currentTotal}`}
             </Button>
           </Form.Item>
-          
+
+          {/* 开发者模式开关 */}
+          <div className="developer-mode-toggle" style={{ textAlign: 'center', marginTop: 8 }}>
+            <Switch
+              checked={devModeEnabled}
+              onChange={setDevModeEnabled}
+              checkedChildren={<><CodeOutlined /> Dev Mode</>}
+              unCheckedChildren="Normal"
+            />
+          </div>
+
           <div className="payment-security">
             <Text type="secondary" style={{ fontSize: '12px' }}>
               <LockOutlined /> Your payment information is encrypted and secure
@@ -533,9 +560,9 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ country, scenario }) => {
         {/* 主要内容区域 */}
         <Row gutter={[24, 24]} className="payment-row">
           {/* 左侧 - 支付表单 */}
-          <Col 
-            xs={24} 
-            lg={14} 
+          <Col
+            xs={24}
+            lg={14}
           >
             <Space direction="vertical" size="large" style={{ width: '100%' }}>
               {error && (
@@ -596,7 +623,7 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ country, scenario }) => {
                       console.log('Payment completed:', params);
                       // Drop-in支付完成后跳转到结果页面，使用预生成的订单ID并传递金额信息
                       const merchantTransId = currentOrderId || result.merchantTransId || generateMerchantTransId();
-                      navigate(`/payment-result?orderId=${merchantTransId}&paymentType=dropin&amount=${currentTotal}&currency=${currentCurrency}`);
+                      navigate(`/payment-result?orderId=${merchantTransId}&paymentType=dropin&amount=${currentTotal}&currency=${currentCurrency}${devModeEnabled ? '&devMode=true' : ''}`);
                     }}
                     onPaymentFailed={async (params) => {
                       console.log('Payment failed:', params);
@@ -614,13 +641,16 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ country, scenario }) => {
           </Col>
 
           {/* 右侧 - 订单摘要 */}
-          <Col 
-            xs={24} 
-            lg={10} 
+          <Col
+            xs={24}
+            lg={10}
           >
             {renderOrderSummary()}
           </Col>
         </Row>
+
+        {/* 开发者面板 - 放在页面底部 */}
+        {devModeEnabled && <DeveloperPanel />}
       </div>
     </div>
   );

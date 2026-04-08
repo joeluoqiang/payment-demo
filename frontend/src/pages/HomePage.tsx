@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
-import { Card, Select, Button, Row, Col, Typography, Space, Spin, Alert, Badge, Switch, message } from 'antd';
+import { Card, Select, Button, Row, Col, Typography, Space, Spin, Alert, Badge, Switch, message, Segmented } from 'antd';
 import { useNavigate } from 'react-router-dom';
-import { 
-  GlobalOutlined, 
+import {
+  GlobalOutlined,
   CreditCardOutlined,
   ShoppingCartOutlined,
   LinkOutlined,
-  ApiOutlined
+  ApiOutlined,
+  SyncOutlined
 } from '@ant-design/icons';
 import { useApp } from '../context/AppContext';
 import { apiService } from '../services/api';
@@ -18,6 +19,18 @@ const { Option } = Select;
 interface HomePageProps {
   // 不需要onStartDemo了，使用useNavigate
 }
+
+// 支付分类
+type PaymentCategory = 'one-time' | 'recurring';
+
+// 从localStorage获取支付分类
+const getStoredPaymentCategory = (): PaymentCategory => {
+  const stored = localStorage.getItem('paymentCategory');
+  if (stored === 'one-time' || stored === 'recurring') {
+    return stored;
+  }
+  return 'one-time';
+};
 
 // 场景配置，根据支付类型动态匹配，不依赖固定场景ID
 const scenarioConfigsByType = {
@@ -44,11 +57,40 @@ const scenarioConfigsByType = {
   }
 };
 
+// 订阅场景配置
+const recurringScenarioConfigs = {
+  linkpay: {
+    icon: <ShoppingCartOutlined />,
+    color: '#0275DD',
+    bgGradient: 'linear-gradient(135deg, #0275DD 0%, #054D8E 100%)',
+    features: ['Subscription setup', 'Token generated', 'Mobile optimized']
+  },
+  dropin: {
+    icon: <CreditCardOutlined />,
+    color: '#4ADAFC',
+    bgGradient: 'linear-gradient(135deg, #4ADAFC 0%, #0275DD 100%)',
+    features: ['Embedded UI', 'Token generated', 'Real-time validation']
+  },
+  directapi: {
+    icon: <ApiOutlined />,
+    color: '#48E5CE',
+    bgGradient: 'linear-gradient(135deg, #48E5CE 0%, #4ADAFC 100%)',
+    features: ['Full control', 'Token generated', 'Custom UI']
+  }
+};
+
 const HomePage: React.FC<HomePageProps> = () => {
   const navigate = useNavigate();
   const { state, loading, error, config, selectCountry, selectScenario } = useApp();
   const [selectedScenarioId, setSelectedScenarioId] = useState<string | null>(null);
   const [environmentSwitching, setEnvironmentSwitching] = useState(false);
+  const [paymentCategory, setPaymentCategory] = useState<PaymentCategory>(getStoredPaymentCategory);
+
+  // 当支付分类改变时，保存到localStorage
+  const handleCategoryChange = (value: PaymentCategory) => {
+    setPaymentCategory(value);
+    localStorage.setItem('paymentCategory', value);
+  };
 
   const handleEnvironmentSwitch = async (checked: boolean) => {
     const targetEnv = checked ? 'production' : 'sandbox';
@@ -79,10 +121,14 @@ const HomePage: React.FC<HomePageProps> = () => {
     if (scenario) {
       selectScenario(scenario);
       setSelectedScenarioId(scenarioId);
-      // 直接进入支付演示，添加时间戳确保每次都是全新的体验
+      // 根据支付分类决定跳转路径
       const timestamp = Date.now();
       setTimeout(() => {
-        navigate(`/payment?t=${timestamp}`);
+        if (paymentCategory === 'recurring') {
+          navigate(`/subscription-payment?t=${timestamp}&type=${scenario.type}`);
+        } else {
+          navigate(`/payment?t=${timestamp}`);
+        }
       }, 300);
     }
   };
@@ -199,6 +245,25 @@ const HomePage: React.FC<HomePageProps> = () => {
                 </div>
               </div>
             )}
+
+            {/* 支付分类选择器 */}
+            <div className="category-selector fade-in-up delay-300" style={{ marginTop: 24 }}>
+              <Segmented
+                value={paymentCategory}
+                onChange={(value) => handleCategoryChange(value as PaymentCategory)}
+                options={[
+                  { label: 'One-time Payment', value: 'one-time' },
+                  { label: 'Recurring/Subscription', value: 'recurring' }
+                ]}
+                size="large"
+                style={{
+                  background: 'rgba(255, 255, 255, 0.15)',
+                  backdropFilter: 'blur(10px)',
+                  borderRadius: '30px',
+                  padding: '4px'
+                }}
+              />
+            </div>
           </div>
         </div>
 
@@ -218,20 +283,22 @@ const HomePage: React.FC<HomePageProps> = () => {
         {/* 场景选择网格 */}
         <div className="scenarios-section">
           <Title level={2} className="section-title fade-in-up delay-400">
-            Choose Your Payment Experience
+            {paymentCategory === 'one-time' ? 'Choose Your Payment Experience' : 'Choose Your Subscription Method'}
           </Title>
-          
+
           <Row gutter={[24, 24]} className="scenarios-grid">
             {state.scenarios.map((scenario: PaymentScenario, index) => {
-              // 根据场景类型直接获取配置
-              const config = scenarioConfigsByType[scenario.type as keyof typeof scenarioConfigsByType];
+              // 根据支付分类和场景类型获取配置
+              const config = paymentCategory === 'one-time'
+                ? scenarioConfigsByType[scenario.type as keyof typeof scenarioConfigsByType]
+                : recurringScenarioConfigs[scenario.type as keyof typeof recurringScenarioConfigs];
               if (!config) return null;
-              
+
               return (
-                <Col 
-                  key={scenario.id} 
-                  xs={24} 
-                  sm={12} 
+                <Col
+                  key={scenario.id}
+                  xs={24}
+                  sm={12}
                   lg={6}
                   className={`fade-in-up delay-${(index + 5) * 100}`}
                 >
@@ -241,7 +308,7 @@ const HomePage: React.FC<HomePageProps> = () => {
                     }`}
                     onClick={() => handleScenarioSelect(scenario.id)}
                     cover={
-                      <div 
+                      <div
                         className="scenario-cover"
                         style={{ background: config.bgGradient }}
                       >
@@ -257,9 +324,11 @@ const HomePage: React.FC<HomePageProps> = () => {
                   >
                     <div className="scenario-content">
                       <Title level={4} className="scenario-title">
-                        {scenario.name || scenario.type}
+                        {paymentCategory === 'one-time'
+                          ? (scenario.name || scenario.type)
+                          : `${scenario.type.toUpperCase()} Subscription`}
                       </Title>
-                      
+
                       <ul className="scenario-features">
                         {config.features.map((feature, idx) => (
                           <li key={idx} className="feature-item">
@@ -268,14 +337,14 @@ const HomePage: React.FC<HomePageProps> = () => {
                           </li>
                         ))}
                       </ul>
-                      
-                      <Button 
-                        type="primary" 
+
+                      <Button
+                        type="primary"
                         block
                         className="scenario-button"
-                        icon={<LinkOutlined />}
+                        icon={paymentCategory === 'recurring' ? <SyncOutlined /> : <LinkOutlined />}
                       >
-                        Try Demo
+                        {paymentCategory === 'one-time' ? 'Try Demo' : 'Subscribe'}
                       </Button>
                     </div>
                   </Card>

@@ -19,6 +19,16 @@ type PaymentScenario struct {
 	Description string `json:"description"`
 }
 
+// 订阅套餐
+type SubscriptionPlan struct {
+	ID          string  `json:"id"`
+	Name        string  `json:"name"`
+	Price       float64 `json:"price"`
+	Currency    string  `json:"currency"`
+	Interval    string  `json:"interval"`    // monthly, yearly
+	Description string  `json:"description"`
+}
+
 // 支付请求
 type PaymentRequest struct {
 	Amount          float64 `json:"amount"`
@@ -28,9 +38,13 @@ type PaymentRequest struct {
 	PaymentMethod   string  `json:"paymentMethod,omitempty"`
 	ReturnURL       string  `json:"returnUrl"`
 	WebhookURL      string  `json:"webhookUrl"`
-	
+
 	// 卡片信息（Direct API）
 	CardInfo *CardInfo `json:"cardInfo,omitempty"`
+
+	// 订阅相关字段
+	IsRecurring   bool   `json:"isRecurring,omitempty"`
+	UserReference string `json:"userReference,omitempty"` // userInfo.reference
 }
 
 // 卡片信息
@@ -39,6 +53,23 @@ type CardInfo struct {
 	ExpiryDate  string `json:"expiryDate"`
 	CVV         string `json:"cvv"`
 	HolderName  string `json:"holderName"`
+}
+
+// 后续订阅支付请求
+type RecurringPaymentRequest struct {
+	TokenValue      string  `json:"tokenValue"`
+	Amount          float64 `json:"amount"`
+	Currency        string  `json:"currency"`
+	MerchantTransID string  `json:"merchantTransId"`
+	ReturnURL       string  `json:"returnUrl"`
+	WebhookURL      string  `json:"webhookUrl"`
+}
+
+// Token 存储模型
+type StoredToken struct {
+	TokenValue    string    `json:"tokenValue"`
+	UserReference string    `json:"userReference"`
+	CreatedAt     time.Time `json:"createdAt"`
 }
 
 // 支付响应
@@ -73,6 +104,9 @@ type Payment struct {
 	Amount          float64   `json:"amount"`
 	Currency        string    `json:"currency"`
 	CreatedAt       time.Time `json:"createdAt"`
+	// 订阅相关字段
+	TokenValue    string `json:"tokenValue,omitempty"`
+	UserReference string `json:"userReference,omitempty"`
 }
 
 // Evonet API响应结构
@@ -102,4 +136,16 @@ type EvonetPaymentResponse struct {
 		Code    string `json:"code"`
 		Message string `json:"message"`
 	} `json:"result"`
+}
+
+// Webhook支付信息 - 扩展支持token
+type WebhookPayment struct {
+	MerchantTransID string                 `json:"merchantTransId"`
+	Status          string                 `json:"status"`
+	Amount          float64                `json:"amount"`
+	Currency        string                 `json:"currency"`
+	CreatedAt       time.Time              `json:"createdAt"`
+	TokenValue      string                 `json:"tokenValue,omitempty"`
+	UserReference   string                 `json:"userReference,omitempty"`
+	PaymentMethod   map[string]interface{} `json:"paymentMethod,omitempty"`
 }

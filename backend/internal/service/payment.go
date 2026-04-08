@@ -14,6 +14,7 @@ import (
 	"net/http"
 	"payment-demo/config"
 	"payment-demo/internal/models"
+	"payment-demo/internal/storage"
 	"payment-demo/internal/utils"
 	"strconv"
 	"strings"
@@ -98,8 +99,19 @@ func (s *PaymentService) CreateInteraction(req *models.PaymentRequest) (*models.
 		"goodsDescription": "Demo goods description",
 	}
 
+	// 订阅支付额外参数
+	if req.IsRecurring {
+		evonetReq["userInfo"] = map[string]interface{}{
+			"reference": req.UserReference,
+		}
+		evonetReq["paymentMethod"] = map[string]interface{}{
+			"recurringProcessingModel": "Subscription",
+		}
+		fmt.Printf("[CreateInteraction] 订阅模式启用 - UserReference: %s\n", req.UserReference)
+	}
+
 	// 发送请求到Evonet
-	resp, err := s.sendEvonetRequest("POST", "/interaction", evonetReq)
+	resp, err := s.sendEvonetRequest("POST", "/interaction", evonetReq, req.MerchantTransID)
 	if err != nil {
 		// 添加详细的错误日志
 		fmt.Printf("Interaction API Error: %v\n", err)
@@ -164,8 +176,19 @@ func (s *PaymentService) CreateDirectPayment(req *models.PaymentRequest) (*model
 		"webhook":             req.WebhookURL,
 	}
 
+	// 订阅支付额外参数
+	if req.IsRecurring {
+		evonetReq["userInfo"] = map[string]interface{}{
+			"reference": req.UserReference,
+		}
+		// 对于订阅支付，需要在paymentMethod中添加recurringProcessingModel
+		pm := evonetReq["paymentMethod"].(map[string]interface{})
+		pm["recurringProcessingModel"] = "Subscription"
+		fmt.Printf("[CreateDirectPayment] 订阅模式启用 - UserReference: %s\n", req.UserReference)
+	}
+
 	// 发送请求到Evonet
-	resp, err := s.sendEvonetRequest("POST", "/payment", evonetReq)
+	resp, err := s.sendEvonetRequest("POST", "/payment", evonetReq, req.MerchantTransID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to send request to Evonet: %w", err)
 	}
@@ -217,7 +240,7 @@ func (s *PaymentService) GetInteractionStatus(merchantOrderID string) (*models.P
 func (s *PaymentService) queryRealPaymentStatus(merchantTransID string) (*models.Payment, error) {
 	// 发送查询请求到Evonet
 	fmt.Printf("[PaymentService] 查询Direct API支付状态 - merchantTransID: %s\n", merchantTransID)
-	resp, err := s.sendEvonetRequest("GET", fmt.Sprintf("/payment/%s", merchantTransID), nil)
+	resp, err := s.sendEvonetRequest("GET", fmt.Sprintf("/payment/%s", merchantTransID), nil, merchantTransID)
 	if err != nil {
 		fmt.Printf("[PaymentService] Direct API查询失败: %v\n", err)
 		return nil, fmt.Errorf("failed to get payment status: %w", err)
@@ -225,34 +248,23 @@ func (s *PaymentService) queryRealPaymentStatus(merchantTransID string) (*models
 
 	fmt.Printf("[PaymentService] Direct API查询响应: %s\n", string(resp))
 
-	// 解析响应
-	var apiResponse struct {
-		Result struct {
-			Code     string `json:"code"`
-			Message  string `json:"message"`
-			Category string `json:"category"`
-		} `json:"result"`
-		Payment struct {
-			MerchantTransInfo struct {
-				MerchantTransID string `json:"merchantTransID"`
-			} `json:"merchantTransInfo"`
-			Status   string  `json:"status"`
-			Amount   float64 `json:"amount"`
-			Currency string  `json:"currency"`
-		} `json:"payment"`
-	}
-
-	if err := json.Unmarshal(resp, &apiResponse); err != nil {
+	// 使用通用map解析响应，以便提取token
+	var rawResponse map[string]interface{}
+	if err := json.Unmarshal(resp, &rawResponse); err != nil {
 		fmt.Printf("[PaymentService] 解析响应失败: %v\n", err)
 		return nil, fmt.Errorf("failed to parse payment status response: %w", err)
 	}
 
 	// 检查API响应结果
-	if apiResponse.Result.Category == "E" {
-		fmt.Printf("[PaymentService] API返回错误 - Code: %s, Message: %s\n", apiResponse.Result.Code, apiResponse.Result.Message)
+	result, _ := rawResponse["result"].(map[string]interface{})
+	category, _ := result["category"].(string)
+	code, _ := result["code"].(string)
+
+	if category == "E" {
+		fmt.Printf("[PaymentService] API返回错误 - Code: %s\n", code)
 
 		// 如果订单不存在，返回未知状态而不是错误
-		if apiResponse.Result.Code == "C0004" {
+		if code == "C0004" {
 			return &models.Payment{
 				MerchantTransID: merchantTransID,
 				Status:          "unknown",
@@ -262,16 +274,45 @@ func (s *PaymentService) queryRealPaymentStatus(merchantTransID string) (*models
 			}, nil
 		}
 
-		return nil, fmt.Errorf("API error: %s - %s", apiResponse.Result.Code, apiResponse.Result.Message)
+		message, _ := result["message"].(string)
+		return nil, fmt.Errorf("API error: %s - %s", code, message)
+	}
+
+	// 提取支付信息
+	payment, _ := rawResponse["payment"].(map[string]interface{})
+	merchantTransInfo, _ := payment["merchantTransInfo"].(map[string]interface{})
+	retMerchantTransID, _ := merchantTransInfo["merchantTransID"].(string)
+	status, _ := payment["status"].(string)
+	amount, _ := payment["amount"].(float64)
+	currency, _ := payment["currency"].(string)
+
+	// 提取token和userReference
+	var tokenValue, userReference string
+	if paymentMethod, ok := payment["paymentMethod"].(map[string]interface{}); ok {
+		if token, ok := paymentMethod["token"].(map[string]interface{}); ok {
+			tokenValue, _ = token["value"].(string)
+			fmt.Printf("[PaymentService] 从查询响应中提取到Token: %s\n", tokenValue)
+		}
+	}
+	if userInfo, ok := payment["userInfo"].(map[string]interface{}); ok {
+		userReference, _ = userInfo["reference"].(string)
+	}
+
+	// 如果有token，保存到存储
+	if tokenValue != "" && userReference != "" {
+		storage.GetTokenStore().SaveToken(userReference, tokenValue)
+		fmt.Printf("[PaymentService] Token已保存 - UserReference: %s, Token: %s\n", userReference, tokenValue)
 	}
 
 	// 转换为标准Payment结构
 	return &models.Payment{
-		MerchantTransID: apiResponse.Payment.MerchantTransInfo.MerchantTransID,
-		Status:          s.normalizeStatus(apiResponse.Payment.Status),
-		Amount:          apiResponse.Payment.Amount,
-		Currency:        apiResponse.Payment.Currency,
-		CreatedAt:       time.Now(), // API可能不返回创建时间，使用当前时间
+		MerchantTransID: retMerchantTransID,
+		Status:          s.normalizeStatus(status),
+		Amount:          amount,
+		Currency:        currency,
+		CreatedAt:       time.Now(),
+		TokenValue:      tokenValue,
+		UserReference:   userReference,
 	}, nil
 }
 
@@ -279,7 +320,7 @@ func (s *PaymentService) queryRealPaymentStatus(merchantTransID string) (*models
 func (s *PaymentService) queryRealInteractionStatus(merchantOrderID string) (*models.Payment, error) {
 	// 发送查询请求到Evonet
 	fmt.Printf("[PaymentService] 查询Interaction状态 - merchantOrderID: %s\n", merchantOrderID)
-	resp, err := s.sendEvonetRequest("GET", fmt.Sprintf("/interaction/%s", merchantOrderID), nil)
+	resp, err := s.sendEvonetRequest("GET", fmt.Sprintf("/interaction/%s", merchantOrderID), nil, merchantOrderID)
 	if err != nil {
 		fmt.Printf("[PaymentService] Interaction查询失败: %v\n", err)
 		return nil, fmt.Errorf("failed to get interaction status: %w", err)
@@ -287,37 +328,27 @@ func (s *PaymentService) queryRealInteractionStatus(merchantOrderID string) (*mo
 
 	fmt.Printf("[PaymentService] Interaction查询响应: %s\n", string(resp))
 
-	// 解析响应
-	var apiResponse struct {
-		Result struct {
-			Code     string `json:"code"`
-			Message  string `json:"message"`
-			Category string `json:"category"`
-		} `json:"result"`
-		MerchantOrderInfo struct {
-			MerchantOrderID string `json:"merchantOrderID"`
-			Status          string `json:"status"`
-		} `json:"merchantOrderInfo"`
-		TransactionInfo struct {
-			TransAmount struct {
-				Currency string `json:"currency"`
-				Value    string `json:"value"`
-			} `json:"transAmount"`
-			Status string `json:"status"`
-		} `json:"transactionInfo"`
-	}
-
-	if err := json.Unmarshal(resp, &apiResponse); err != nil {
+	// 使用通用map解析响应，以便提取token
+	var rawResponse map[string]interface{}
+	if err := json.Unmarshal(resp, &rawResponse); err != nil {
 		fmt.Printf("[PaymentService] 解析交互响应失败: %v\n", err)
 		return nil, fmt.Errorf("failed to parse interaction status response: %w", err)
 	}
 
+	// 打印整个响应结构的层级，帮助调试token位置
+	fmt.Printf("[PaymentService] 响应结构层级:\n")
+	printMapStructure(rawResponse, 0)
+
 	// 检查API响应结果
-	if apiResponse.Result.Category == "E" {
-		fmt.Printf("[PaymentService] 交互API返回错误 - Code: %s, Message: %s\n", apiResponse.Result.Code, apiResponse.Result.Message)
+	result, _ := rawResponse["result"].(map[string]interface{})
+	category, _ := result["category"].(string)
+	code, _ := result["code"].(string)
+
+	if category == "E" {
+		fmt.Printf("[PaymentService] 交互API返回错误 - Code: %s\n", code)
 
 		// 如果订单不存在，返回未知状态而不是错误
-		if apiResponse.Result.Code == "C0004" {
+		if code == "C0004" {
 			return &models.Payment{
 				MerchantTransID: merchantOrderID,
 				Status:          "unknown",
@@ -327,32 +358,86 @@ func (s *PaymentService) queryRealInteractionStatus(merchantOrderID string) (*mo
 			}, nil
 		}
 
-		return nil, fmt.Errorf("API error: %s - %s", apiResponse.Result.Code, apiResponse.Result.Message)
+		message, _ := result["message"].(string)
+		return nil, fmt.Errorf("API error: %s - %s", code, message)
 	}
 
-	// 转换为标准Payment结构
-	// 解析金额（从字符串转换为float64）
+	// 提取订单信息
+	merchantOrderInfo, _ := rawResponse["merchantOrderInfo"].(map[string]interface{})
+	retMerchantOrderID, _ := merchantOrderInfo["merchantOrderID"].(string)
+
+	// 提取交易信息
+	transactionInfo, _ := rawResponse["transactionInfo"].(map[string]interface{})
+	transAmount, _ := transactionInfo["transAmount"].(map[string]interface{})
+	currency, _ := transAmount["currency"].(string)
+	valueStr, _ := transAmount["value"].(string)
+	status, _ := transactionInfo["status"].(string)
+
+	if status == "" {
+		status, _ = merchantOrderInfo["status"].(string)
+	}
+
+	// 解析金额
 	var amount float64
-	if apiResponse.TransactionInfo.TransAmount.Value != "" {
-		if parsedAmount, err := strconv.ParseFloat(apiResponse.TransactionInfo.TransAmount.Value, 64); err == nil {
+	if valueStr != "" {
+		if parsedAmount, err := strconv.ParseFloat(valueStr, 64); err == nil {
 			amount = parsedAmount
 		}
 	}
 
-	// 使用transactionInfo中的状态，因为它更准确
-	status := apiResponse.TransactionInfo.Status
-	if status == "" {
-		// 如果没有transactionInfo状态，使用merchantOrderInfo状态
-		status = apiResponse.MerchantOrderInfo.Status
+	// 提取token和userReference - 根据实际API响应结构
+	// token在 rawResponse["paymentMethod"]["token"] 中
+	var tokenValue, userReference string
+
+	if paymentMethod, ok := rawResponse["paymentMethod"].(map[string]interface{}); ok {
+		fmt.Printf("[PaymentService] 找到 paymentMethod 字段\n")
+		if token, ok := paymentMethod["token"].(map[string]interface{}); ok {
+			fmt.Printf("[PaymentService] 找到 paymentMethod.token\n")
+			tokenValue, _ = token["value"].(string)
+			if tokenValue != "" {
+				fmt.Printf("[PaymentService] 从 paymentMethod.token.value 提取到Token: %s\n", tokenValue)
+			}
+			// userReference也在token对象中
+			userReference, _ = token["userReference"].(string)
+			if userReference != "" {
+				fmt.Printf("[PaymentService] 从 paymentMethod.token.userReference 提取到UserReference: %s\n", userReference)
+			}
+		}
+	}
+
+	// 如果有token，保存到存储
+	if tokenValue != "" && userReference != "" {
+		storage.GetTokenStore().SaveToken(userReference, tokenValue)
+		fmt.Printf("[PaymentService] Token已保存 - UserReference: %s, Token: %s\n", userReference, tokenValue)
 	}
 
 	return &models.Payment{
-		MerchantTransID: apiResponse.MerchantOrderInfo.MerchantOrderID,
+		MerchantTransID: retMerchantOrderID,
 		Status:          s.normalizeStatus(status),
 		Amount:          amount,
-		Currency:        apiResponse.TransactionInfo.TransAmount.Currency,
-		CreatedAt:       time.Now(), // API可能不返回创建时间，使用当前时间
+		Currency:        currency,
+		CreatedAt:       time.Now(),
+		TokenValue:      tokenValue,
+		UserReference:   userReference,
 	}, nil
+}
+
+// printMapStructure 打印map结构帮助调试
+func printMapStructure(m map[string]interface{}, depth int) {
+	for key, value := range m {
+		indent := ""
+		for i := 0; i < depth; i++ {
+			indent += "  "
+		}
+		if nested, ok := value.(map[string]interface{}); ok {
+			fmt.Printf("%s%s: (map)\n", indent, key)
+			printMapStructure(nested, depth+1)
+		} else if arr, ok := value.([]interface{}); ok {
+			fmt.Printf("%s%s: (array, len=%d)\n", indent, key, len(arr))
+		} else {
+			fmt.Printf("%s%s: %v\n", indent, key, value)
+		}
+	}
 }
 
 // normalizeStatus 标准化状态名称
@@ -372,13 +457,101 @@ func (s *PaymentService) normalizeStatus(status string) string {
 	}
 }
 
+// CreateRecurringPayment 创建后续订阅支付（使用token）
+func (s *PaymentService) CreateRecurringPayment(req *models.RecurringPaymentRequest) (*models.PaymentResponse, error) {
+	// 构建Evonet后续订阅支付请求
+	evonetReq := map[string]interface{}{
+		"merchantTransInfo": map[string]interface{}{
+			"merchantTransID":   req.MerchantTransID,
+			"merchantTransTime": time.Now().Format("2006-01-02T15:04:05+08:00"),
+		},
+		"transAmount": map[string]interface{}{
+			"currency": req.Currency,
+			"value":    fmt.Sprintf("%.0f", req.Amount),
+		},
+		"allowAuthentication": false, // Token支付不需要3DS认证
+		"captureAfterHours":   "0",
+		"returnURL":           req.ReturnURL,
+		"paymentMethod": map[string]interface{}{
+			"type": "token", // 使用token支付时type应为token
+			"token": map[string]interface{}{
+				"value": req.TokenValue,
+			},
+			"recurringProcessingModel": "Subscription",
+		},
+		"webhook": req.WebhookURL,
+	}
+
+	fmt.Printf("[CreateRecurringPayment] 发起后续订阅支付 - Token: %s, Amount: %.0f %s\n", req.TokenValue, req.Amount, req.Currency)
+
+	// 发送请求到Evonet
+	resp, err := s.sendEvonetRequest("POST", "/payment", evonetReq, req.MerchantTransID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to send recurring payment request: %w", err)
+	}
+
+	fmt.Printf("[CreateRecurringPayment] Evonet响应: %s\n", string(resp))
+
+	// 使用通用map解析响应
+	var rawResponse map[string]interface{}
+	if err := json.Unmarshal(resp, &rawResponse); err != nil {
+		return nil, fmt.Errorf("failed to parse Evonet response: %w", err)
+	}
+
+	// 检查API响应结果
+	result, _ := rawResponse["result"].(map[string]interface{})
+	category, _ := result["category"].(string)
+	code, _ := result["code"].(string)
+	message, _ := result["message"].(string)
+
+	// 构建响应
+	response := &models.PaymentResponse{
+		Success: category != "E" && (code == "" || code[0] == 'S'),
+		Message: message,
+	}
+
+	// 如果是错误响应，直接返回
+	if category == "E" {
+		response.Success = false
+		return response, nil
+	}
+
+	// 提取支付信息
+	if payment, ok := rawResponse["payment"].(map[string]interface{}); ok {
+		if merchantTransInfo, ok := payment["merchantTransInfo"].(map[string]interface{}); ok {
+			response.MerchantTransID, _ = merchantTransInfo["merchantTransID"].(string)
+		}
+		response.Status, _ = payment["status"].(string)
+	}
+
+	// 处理需要额外操作的情况（如重定向）
+	if action, ok := rawResponse["action"].(map[string]interface{}); ok {
+		actionType, _ := action["type"].(string)
+		response.Action = &models.ActionInfo{
+			Type: actionType,
+			Data: make(map[string]interface{}),
+		}
+
+		if threeDSData, ok := action["threeDSData"].(map[string]interface{}); ok {
+			response.Action.Data["threeDSData"] = threeDSData
+		}
+		if redirectData, ok := action["redirectData"].(map[string]interface{}); ok {
+			response.Action.Data["redirectData"] = redirectData
+		}
+	}
+
+	return response, nil
+}
+
 // 发送请求到Evonet API
-func (s *PaymentService) sendEvonetRequest(method, endpoint string, data interface{}) ([]byte, error) {
+func (s *PaymentService) sendEvonetRequest(method, endpoint string, data interface{}, sessionId string) ([]byte, error) {
 	// 获取当前环境的配置
 	currentConfig := s.config.GetCurrentEvonetConfig()
 	// 使用原始端点，不添加额外前缀
 	url := currentConfig.APIURL + endpoint
-	fmt.Printf("[sendEvonetRequest] %s %s (使用%s环境)\n", method, url, s.config.GetAPIMode())
+	fmt.Printf("[sendEvonetRequest] %s %s (使用%s环境), sessionId: %s\n", method, url, s.config.GetAPIMode(), sessionId)
+
+	startTime := time.Now()
 
 	var body []byte
 	if data != nil {
@@ -401,7 +574,7 @@ func (s *PaymentService) sendEvonetRequest(method, endpoint string, data interfa
 	req.Header.Set("DateTime", dateTime)
 	req.Header.Set("KeyID", currentConfig.KeyID)
 	req.Header.Set("SignType", "Key-based")
-	
+
 	// 生成MsgID
 	msgID := utils.GenerateMsgID()
 	req.Header.Set("MsgID", msgID)
@@ -418,6 +591,30 @@ func (s *PaymentService) sendEvonetRequest(method, endpoint string, data interfa
 	idempotencyKey := utils.GenerateIdempotencyKey()
 	req.Header.Set("Idempotency-Key", idempotencyKey)
 	fmt.Printf("[sendEvonetRequest] Idempotency-Key: %s\n", idempotencyKey)
+
+	// 记录请求日志
+	if sessionId != "" {
+		var reqBody interface{}
+		if len(body) > 0 {
+			json.Unmarshal(body, &reqBody)
+		}
+		reqHeaders := make(map[string]string)
+		for k, v := range req.Header {
+			if len(v) > 0 {
+				reqHeaders[k] = v[0]
+			}
+		}
+		storage.GetPaymentSessionStore().AddLog(sessionId, storage.ApiLogEntry{
+			ID:        storage.GenerateLogID(),
+			Timestamp: time.Now().Format(time.RFC3339),
+			Type:      "request",
+			ApiName:   endpoint,
+			Method:    method,
+			URL:       url,
+			Headers:   reqHeaders,
+			Body:      reqBody,
+		})
+	}
 
 	// 发送请求
 	resp, err := s.client.Do(req)
@@ -436,6 +633,26 @@ func (s *PaymentService) sendEvonetRequest(method, endpoint string, data interfa
 	}
 
 	fmt.Printf("[sendEvonetRequest] Response Body: %s\n", string(responseBody))
+
+	// 记录响应日志
+	if sessionId != "" {
+		var respBody interface{}
+		if len(responseBody) > 0 {
+			json.Unmarshal(responseBody, &respBody)
+		}
+		duration := time.Since(startTime).Milliseconds()
+		storage.GetPaymentSessionStore().AddLog(sessionId, storage.ApiLogEntry{
+			ID:        storage.GenerateLogID(),
+			Timestamp: time.Now().Format(time.RFC3339),
+			Type:      "response",
+			ApiName:   endpoint,
+			Method:    method,
+			URL:       url,
+			Status:    resp.StatusCode,
+			Duration:  duration,
+			Body:      respBody,
+		})
+	}
 
 	if resp.StatusCode >= 400 {
 		fmt.Printf("[sendEvonetRequest] API Error - Status: %d, Body: %s\n", resp.StatusCode, string(responseBody))

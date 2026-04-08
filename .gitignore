@@ -12,3 +12,4 @@ yarn-error.log*
 temp/
 tmp/
 .trae/
+backend/bin/

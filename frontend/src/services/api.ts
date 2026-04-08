@@ -1,5 +1,5 @@
 import axios from 'axios';
-import type { Country, PaymentScenario, PaymentRequest, PaymentResponse } from '../types';
+import type { Country, PaymentScenario, PaymentRequest, PaymentResponse, SubscriptionPlan, RecurringPaymentRequest, StoredToken, ApiLogEntry } from '../types';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
 
@@ -75,7 +75,7 @@ export const apiService = {
   getPaymentStatus: async (merchantTransId: string): Promise<any> => {
     console.log('[API] 查询Direct API支付状态 - merchantTransId:', merchantTransId);
     console.log('[API] 请求URL:', `/payment/${merchantTransId}`);
-    
+
     try {
       const response = await api.get(`/payment/${merchantTransId}`);
       console.log('[API] Direct API查询成功响应:', response.data);
@@ -96,7 +96,7 @@ export const apiService = {
   getInteractionStatus: async (merchantOrderId: string): Promise<any> => {
     console.log('[API] 查询Interaction状态 - merchantOrderId:', merchantOrderId);
     console.log('[API] 请求URL:', `/interaction/${merchantOrderId}`);
-    
+
     try {
       const response = await api.get(`/interaction/${merchantOrderId}`);
       console.log('[API] Interaction查询成功响应:', response.data);
@@ -110,6 +110,56 @@ export const apiService = {
         message: error.message
       });
       throw error;
+    }
+  },
+
+  // 获取订阅套餐列表
+  getSubscriptionPlans: async (currency?: string): Promise<SubscriptionPlan[]> => {
+    console.log('[API] 获取订阅套餐列表...', currency ? `币种: ${currency}` : '');
+    const params = currency ? { currency } : {};
+    const response = await api.get('/subscription-plans', { params });
+    return response.data.data;
+  },
+
+  // 创建后续订阅支付
+  createRecurringPayment: async (request: RecurringPaymentRequest): Promise<PaymentResponse> => {
+    console.log('[API] 创建后续订阅支付...', request);
+    const response = await api.post('/payment/recurring', request);
+    return response.data;
+  },
+
+  // 根据userReference获取token
+  getToken: async (userReference: string): Promise<StoredToken | null> => {
+    console.log('[API] 获取Token - userReference:', userReference);
+    try {
+      const response = await api.get(`/tokens/${userReference}`);
+      return response.data.data;
+    } catch (error: any) {
+      if (error.response?.status === 404) {
+        console.log('[API] Token未找到');
+        return null;
+      }
+      throw error;
+    }
+  },
+
+  // 获取API日志（开发者模式）- 从后端获取Evonet API交互日志
+  getApiLogs: async (sessionId: string): Promise<ApiLogEntry[]> => {
+    try {
+      const response = await api.get(`/dev-logs/${sessionId}`);
+      return response.data.data || [];
+    } catch (error: any) {
+      console.error('[API] 获取API日志失败:', error);
+      return [];
+    }
+  },
+
+  // 清除API日志（开发者模式）
+  clearApiLogs: async (sessionId: string): Promise<void> => {
+    try {
+      await api.delete(`/dev-logs/${sessionId}`);
+    } catch (error: any) {
+      console.error('[API] 清除API日志失败:', error);
     }
   },
 };
