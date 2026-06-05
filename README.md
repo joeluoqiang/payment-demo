@@ -20,6 +20,15 @@ payment-demo/
   - **LinkPay**: Redirect-based payment link
   - **Drop-in**: Embedded payment component
   - **Direct API**: Direct API calls with 3DS authentication
+- 💳 **Subscription Payment Support**:
+  - Multiple subscription plans (Basic, Premium, Enterprise)
+  - Token-based recurring payments
+  - Automatic token generation and storage
+  - Subsequent payment API
+- 🛠️ **Developer Mode**:
+  - API request/response logging
+  - Real-time debugging
+  - Payment flow tracking
 - 🎯 Multi-environment support (UAT test environment, Production environment)
 
 ## Quick Start
@@ -47,6 +56,14 @@ Frontend service will start at http://localhost:5173
 ### 3. Access Application
 
 Open browser and visit http://localhost:5173
+
+**Quick Access Links:**
+- Main App: http://localhost:5173
+- Subscription Payment (LinkPay): http://localhost:5173/subscription-payment?type=linkpay
+- Subscription Payment (Drop-in): http://localhost:5173/subscription-payment?type=dropin
+- Subscription Payment (Direct API): http://localhost:5173/subscription-payment?type=directapi
+
+See [RUNNING_SERVICES.md](./RUNNING_SERVICES.md) for detailed access guide and subscription feature documentation.
 
 ## Configure Real Payment API
 
@@ -127,22 +144,74 @@ internal/
 - Redirect-based payment flow
 - Best for mobile-first experiences
 - Supports multiple currencies
+- ✅ Subscription payment support
 
 ### Drop-in
 - Embedded payment component
 - Multiple payment methods in one UI
 - Real-time validation
+- ✅ Subscription payment support
 
 ### Direct API
 - Full control over payment flow
 - Custom UI implementation
 - Advanced 3DS authentication support
+- ✅ Subscription payment support
+
+## Subscription Payment Features
+
+### Available Plans
+- **Basic Plan**: $1/month - Essential features
+- **Premium Plan**: $10/month - Advanced features
+- **Enterprise Plan**: $100/month - Unlimited access
+
+### Subscription Flow
+1. **Initial Subscription**
+   - User selects a subscription plan
+   - Completes first payment with card details
+   - System generates and stores payment token
+   - Token linked to user reference (stored in cookie)
+
+2. **Token Management**
+   - Automatic token extraction from payment response
+   - Token extraction from webhook notifications
+   - In-memory storage (recommend database for production)
+   - Query tokens by user reference
+
+3. **Recurring Payments**
+   - Use saved token for subsequent payments
+   - No card details required
+   - Automated billing capability
+   - API endpoint: `POST /api/v1/payment/recurring`
+
+### API Endpoints
+```
+GET  /api/v1/subscription-plans          # Get available plans
+POST /api/v1/payment/interaction         # Create subscription (LinkPay/Drop-in)
+POST /api/v1/payment/direct              # Create subscription (Direct API)
+POST /api/v1/payment/recurring           # Recurring payment with token
+GET  /api/v1/tokens/:userReference       # Get stored token
+```
+
+### Developer Mode
+Enable developer mode to:
+- View all API requests/responses
+- Track payment flow in real-time
+- Debug integration issues
+- Inspect webhook notifications
+- Test with redirect interception
+
+Toggle developer mode using the switch in payment pages.
 
 ## Test Card
 
-- Card Number: 4895330111111119
-- Expiry: 12/31
-- CVV: 390
+Use these test card details for payment testing:
+
+- **Card Number**: 4895 3301 1111 1119
+- **Expiry Date**: 12/31
+- **CVV**: 390
+- **Cardholder Name**: John Doe
+- **3DS OTP** (if required): 123456
 
 ## Important Notes
 
